@@ -1,33 +1,30 @@
 "use client";
 
 import Image from "next/image";
-import { BriefcaseBusiness, Mail, Users } from "lucide-react";
+import { BriefcaseBusiness, Mail, Users, LucideIcon } from "lucide-react";
 import ContactUs from "@/app/components/ContactUs";
 import { motion } from "framer-motion";
 import CareersCultureShowcase from "@/components/careers/CareersCultureShowcase";
 import CareersAscentStream from "@/components/ui/hero-animations/CareersAscentStream";
 import type { CareerPageData } from "@/lib/services/careers.service";
 
-const defaultHighlights = [
-  {
-    icon: BriefcaseBusiness,
-    title: "Meaningful work",
-    text: "Solve real enterprise challenges across SAP, data, analytics, and automation.",
-  },
-  {
-    icon: Users,
-    title: "Grow together",
-    text: "Learn alongside experienced consultants in a collaborative, ownership-driven team.",
-  },
-  {
-    icon: Mail,
-    title: "Start a conversation",
-    text: "Share your experience with us and we will contact you when there is a strong fit.",
-  },
-];
+const ICON_MAP: Record<string, LucideIcon> = {
+  BriefcaseBusiness,
+  Users,
+  Mail,
+};
 
 export default function CareersClientView({ data }: { data: CareerPageData }) {
-  const { heroTitle, heroSubtitle, heroImage, cultureTitle, cultureSubtitle } = data;
+  const {
+    heroTitle,
+    heroSubtitle,
+    heroImage,
+    cultureTitle,
+    cultureSubtitle,
+    highlights,
+    perks,
+    metrics,
+  } = data;
 
   return (
     <main className="public-alternating-page overflow-hidden bg-[#121927] text-white">
@@ -96,23 +93,26 @@ export default function CareersClientView({ data }: { data: CareerPageData }) {
               </motion.div>
 
               <div className="grid flex-1 gap-4 items-stretch">
-                {defaultHighlights.map(({ icon: Icon, title, text }, i) => (
-                  <motion.article
-                    key={title}
-                    initial={{ opacity: 0, y: 32 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{ duration: 0.55, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-                    whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                    className="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white text-slate-900 p-4.5 sm:p-5 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md"
-                  >
-                    <span className="flex shrink-0 items-center text-cyan-600">
-                      <Icon className="h-6 w-6 text-cyan-600 stroke-cyan-600" strokeWidth={2} />
-                    </span>
-                    <h3 className="mt-3.5 text-base sm:text-lg font-bold text-slate-900">{title}</h3>
-                    <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-600">{text}</p>
-                  </motion.article>
-                ))}
+                {highlights.map(({ icon: iconName, title, text }, i) => {
+                  const Icon = ICON_MAP[iconName] || BriefcaseBusiness;
+                  return (
+                    <motion.article
+                      key={title}
+                      initial={{ opacity: 0, y: 32 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 0.55, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                      whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                      className="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white text-slate-900 p-4.5 sm:p-5 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md"
+                    >
+                      <span className="flex shrink-0 items-center text-cyan-600">
+                        <Icon className="h-6 w-6 text-cyan-600 stroke-cyan-600" strokeWidth={2} />
+                      </span>
+                      <h3 className="mt-3.5 text-base sm:text-lg font-bold text-slate-900">{title}</h3>
+                      <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-600">{text}</p>
+                    </motion.article>
+                  );
+                })}
               </div>
             </div>
 
@@ -124,7 +124,7 @@ export default function CareersClientView({ data }: { data: CareerPageData }) {
               className="h-full"
             >
               <div className="h-full">
-                <CareersCultureShowcase />
+                <CareersCultureShowcase perks={perks} metrics={metrics} />
               </div>
             </motion.div>
           </div>

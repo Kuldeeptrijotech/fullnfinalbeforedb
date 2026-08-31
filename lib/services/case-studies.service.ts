@@ -9,6 +9,7 @@ export type CaseStudyData = {
   solution: string;
   outcome: string;
   metrics: string[];
+  images: string[];
   heroImage: string;
 };
 
@@ -28,6 +29,7 @@ export async function getCaseStudiesData(): Promise<CaseStudyData[]> {
       solution: cs.solution,
       outcome: cs.outcome,
       metrics: cs.metrics,
+      images: cs.images || [],
       heroImage: cs.heroImage,
     }));
   } catch (error) {

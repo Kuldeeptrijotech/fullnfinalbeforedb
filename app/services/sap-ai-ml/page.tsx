@@ -30,5 +30,5 @@ export default async function Page() {
     { title: "Future-Ready Foundation", description: "Build scalable analytical models ready for evolving business and technology needs." },
   ];
 
-  return <SapAiPage offerings={offerings} impacts={impacts} />;
+  return <SapAiPage service={service} offerings={offerings} impacts={impacts} />;
 }

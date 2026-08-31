@@ -30,5 +30,5 @@ export default async function Page() {
     { title: "Scalable Architecture", description: "Use repeatable integration patterns that can grow with the enterprise." },
   ];
 
-  return <SapDataIntegrationPage offerings={offerings} impacts={impacts} />;
+  return <SapDataIntegrationPage service={service} offerings={offerings} impacts={impacts} />;
 }

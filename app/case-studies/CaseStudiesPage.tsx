@@ -5,77 +5,9 @@ import { ArrowRight } from "lucide-react";
 import ImageSlider from "../components/common/ImageSlider";
 import { motion } from "framer-motion";
 import CaseStudiesVectorTrails from "@/components/ui/hero-animations/CaseStudiesVectorTrails";
-import { ReactNode } from "react";
-
-type CaseStudy = {
-  title: ReactNode;
-  description: string;
-  images: string[];
-};
-
-const studies: CaseStudy[] = [
-  {
-    title: "Maximizing ROI for Large Scale S/4HANA Transformations",
-    description:
-      "Discover the incredible benefits that S/4HANA brings, including streamlined processes and innovative SAP tools that ensure a smooth transition. Our experts share valuable insights on selecting the perfect cloud offering tailored to your unique business needs, helping you achieve unparalleled efficiency and cost-effectiveness.",
-    images: Array.from(
-      { length: 25 },
-      (_, index) =>
-        `/assets/image/Casestudy1_${index === 0 ? "001" : String(index + 1).padStart(index + 1 >= 10 ? 4 : 3, "0")}.png`,
-    ),
-  },
-  {
-    title: "SAP SAC Financial Planning for a Major Pharmaceutical Company",
-    description:
-      "The case study illustrates how SAP SAC was used for financial planning by a leading pharmaceutical company. The goal was to analyze data from a BW environment, which included entities such as profit centers, segments, and material costs. The aim was to make use of this data analysis to effectively support the company's financial planning objectives.",
-    images: Array.from(
-      { length: 8 },
-      (_, index) =>
-        `/assets/image/Casestudy2_${String(index + 1).padStart(3, "0")}.jpg`,
-    ),
-  },
-  {
-    title: "Elevate Your Business with SAP Profitability & Performance Management (PaPM)",
-    description:
-      "Discover how SAP PaPM can transform your approach to financial and operational performance management, with a comprehensive agenda covering its core functionalities, solution architecture, key use cases, and real-world success stories.",
-    images: Array.from(
-      { length: 11 },
-      (_, index) =>
-        `/assets/image/Casestudy3_${index + 1 >= 10 ? String(index + 1).padStart(4, "0") : String(index + 1).padStart(3, "0")}.png`,
-    ),
-  },
-  {
-    title: "MIS & KPIs Dashboard Implementation for a Leading European Automotive Manufacturer using SAP BW/4HANA & SAP Analytics Cloud",
-    description:
-      "This case study illustrates the implementation of performance indicators (KPIs) and management information system (MIS) reporting for a major British car manufacturer. The implementation was carried out using SAP BW and SAC, with a focus on optimizing business performance through a thorough understanding of KPIs.",
-    images: Array.from(
-      { length: 13 },
-      (_, index) =>
-        `/assets/image/Casestudy4_${index + 1 >= 10 ? String(index + 1).padStart(4, "0") : String(index + 1).padStart(3, "0")}.jpg`,
-    ),
-  },
-  {
-    title: "Legal Consolidation and Disclosure reporting for Major APAC Palm oil Manufacturers using SAP BPC 11.0",
-    description:
-      "Legal Consolidation and Disclosure reporting for Major APAC Palmoil Manufacturer. It describes a unique approach towards BPC Legal Consolidation (SAP Business Object Planning & Consolidation 11.1 NW for Consolidation) to repurpose the Group Currency of a Group as a source for another group based on alternative currency base.",
-    images: Array.from(
-      { length: 4 },
-      (_, index) =>
-        `/assets/image/Casestudy5_${String(index + 1).padStart(3, "0")}.png`,
-    ),
-  },
-];
-
 import type { CaseStudyData } from "@/lib/services/case-studies.service";
 
-export default function CaseStudiesPage({ dbStudies }: { dbStudies?: CaseStudyData[] }) {
-  const displayStudies = dbStudies && dbStudies.length > 0
-    ? dbStudies.map((cs, i) => ({
-        title: cs.title,
-        description: `${cs.challenge} ${cs.solution} Outcome: ${cs.outcome}`,
-        images: studies[i % studies.length]?.images || studies[0].images,
-      }))
-    : studies;
+export default function CaseStudiesPage({ dbStudies = [] }: { dbStudies?: CaseStudyData[] }) {
   return (
     <main className="public-alternating-page overflow-hidden bg-[#121927] text-white">
       {/* ──── Hero ────────────────────────────────────────────────────────────── */}
@@ -138,10 +70,14 @@ export default function CaseStudiesPage({ dbStudies }: { dbStudies?: CaseStudyDa
         <div aria-hidden className="absolute inset-x-0 bottom-0 z-30 h-px bg-white/[0.08]" />
       </section>
 
-      {/* ──── Case Studies ────────────────────────────────────────────── */}
+      {/* ──── Case Studies from Database ────────────────────────────────────────────── */}
       <div id="case-studies" className="divide-y divide-slate-200">
-        {displayStudies.map((study, index) => {
+        {dbStudies.map((study, index) => {
           const isWhite = index % 2 === 0;
+          const description = study.challenge
+            ? `${study.challenge} ${study.solution}`
+            : "";
+
           return (
             <section
               className={
@@ -149,7 +85,7 @@ export default function CaseStudiesPage({ dbStudies }: { dbStudies?: CaseStudyDa
                   ? "relative isolate overflow-hidden bg-white py-12 sm:py-14 lg:py-16 text-slate-900 border-b border-slate-200"
                   : "relative isolate overflow-hidden bg-[#050817] py-12 sm:py-14 lg:py-16 text-white border-b border-white/10"
               }
-              key={index}
+              key={study.slug || index}
             >
               <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
                 <motion.div
@@ -166,29 +102,42 @@ export default function CaseStudiesPage({ dbStudies }: { dbStudies?: CaseStudyDa
                     transition={{ duration: 0.4 }}
                     className={`font-mono text-xs font-bold uppercase tracking-[0.2em] ${isWhite ? "text-slate-900" : "text-[#38bdf8]"}`}
                   >
-                    Case study {String(index + 1).padStart(2, "0")}
+                    Case study {String(index + 1).padStart(2, "0")} {study.industry ? `• ${study.industry}` : ""}
                   </motion.p>
-                  <h2 className={`mt-2 text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-4xl ${
-                    isWhite ? "text-slate-900" : "text-white"
-                  }`}>
+                  <h2
+                    className={`mt-2 text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-4xl ${
+                      isWhite ? "text-slate-900" : "text-white"
+                    }`}
+                  >
                     {study.title}
                   </h2>
-                  <p className={`mt-2 max-w-3xl text-xs sm:text-sm leading-relaxed ${
-                    isWhite ? "text-slate-600" : "text-slate-300"
-                  }`}>
-                    {study.description}
-                  </p>
+                  {description && (
+                    <p
+                      className={`mt-2 max-w-3xl text-xs sm:text-sm leading-relaxed ${
+                        isWhite ? "text-slate-600" : "text-slate-300"
+                      }`}
+                    >
+                      {description}
+                    </p>
+                  )}
+                  {study.outcome && (
+                    <div className="mt-3 inline-block rounded-lg bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-400">
+                      <strong>Impact:</strong> {study.outcome}
+                    </div>
+                  )}
                 </motion.div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 32 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.65, delay: 0.2, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-                  className="mx-auto mt-7 max-w-3xl sm:mt-9"
-                >
-                  <ImageSlider images={study.images} label={`Case study ${index + 1}`} />
-                </motion.div>
+                {study.images && study.images.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 32 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.65, delay: 0.2, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                    className="mx-auto mt-7 max-w-3xl sm:mt-9"
+                  >
+                    <ImageSlider images={study.images} label={`Case study ${index + 1}`} />
+                  </motion.div>
+                )}
               </div>
             </section>
           );
@@ -197,4 +146,3 @@ export default function CaseStudiesPage({ dbStudies }: { dbStudies?: CaseStudyDa
     </main>
   );
 }
-

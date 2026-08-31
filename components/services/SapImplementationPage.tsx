@@ -13,76 +13,99 @@ import {
   ShieldCheck,
   Target,
   Zap,
+  LucideIcon,
 } from "lucide-react";
 import { Reveal, SlideReveal, StaggerReveal, StaggerRevealItem } from "@/components/motion/Reveal";
 import ServiceHero from "@/components/services/ServiceHero";
 import { Glass, SectionLabel } from "@/components/services/service-ui";
 import Container from "@/components/ui/Container";
-
+import type { ServiceDetailData } from "@/lib/services/services.service";
 
 const HEX_CLIP = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
 
+const ICON_MAP: Record<string, LucideIcon> = {
+  Target,
+  Cog,
+  Code2,
+  Database,
+  Rocket,
+  ShieldCheck,
+  Server,
+  Layers,
+};
+
 type ServiceItem = { title: string; description: string };
 
-const STEPS = [
-  { n: "01", label: "Assess & plan", icon: Target },
-  { n: "02", label: "Configure", icon: Cog },
-  { n: "03", label: "Develop & test", icon: Code2 },
-  { n: "04", label: "Migrate data", icon: Database },
-  { n: "05", label: "Go-live & optimize", icon: Rocket },
-];
+export default function SapImplementationPage({
+  service,
+  offerings,
+  impacts,
+}: {
+  service?: ServiceDetailData | null;
+  offerings: ServiceItem[];
+  impacts: ServiceItem[];
+}) {
+  const meta = service?.metaData || {};
+  const steps: any[] = meta.steps || [
+    { n: "01", label: "Assess & plan", icon: "Target" },
+    { n: "02", label: "Configure", icon: "Cog" },
+    { n: "03", label: "Develop & test", icon: "Code2" },
+    { n: "04", label: "Migrate data", icon: "Database" },
+    { n: "05", label: "Go-live & optimize", icon: "Rocket" },
+  ];
 
-const STACK = [
-  { label: "Strategy & Governance", desc: "Roadmaps, delivery models, and governance that keep transformation on track.", icon: ShieldCheck },
-  { label: "SAP Solutions", desc: "S/4HANA, consolidation, planning, and analytics built around your business.", icon: Server },
-  { label: "Platform & Clean Core", desc: "BTP extensions that keep the core standard, stable, and upgrade-ready.", icon: Layers },
-  { label: "Data & Foundation", desc: "A trusted data backbone that powers reporting and intelligent decisions.", icon: Database },
-];
+  const stack: any[] = meta.stack || [
+    { label: "Strategy & Governance", desc: "Roadmaps, delivery models, and governance that keep transformation on track.", icon: "ShieldCheck" },
+    { label: "SAP Solutions", desc: "S/4HANA, consolidation, planning, and analytics built around your business.", icon: "Server" },
+    { label: "Platform & Clean Core", desc: "BTP extensions that keep the core standard, stable, and upgrade-ready.", icon: "Layers" },
+    { label: "Data & Foundation", desc: "A trusted data backbone that powers reporting and intelligent decisions.", icon: "Database" },
+  ];
 
-const EXTENSIONS = ["Consolidation", "Planning", "Analytics", "Automation", "Integrations", "Profitability"];
+  const extensions: string[] = meta.extensions || ["Consolidation", "Planning", "Analytics", "Automation", "Integrations", "Profitability"];
 
-const CONSULTING_PILLARS = [
-  {
-    tag: "Advisory & Roadmap",
-    title: "S/4HANA Transformation",
-    desc: "Tailored migration pathways (Greenfield, Brownfield, or Selective) with clear ROI modeling and clean core architecture.",
-    icon: Target,
-  },
-  {
-    tag: "Process Optimization",
-    title: "Standardized Operations",
-    desc: "Align enterprise workflows with SAP standard best practices, reducing complexity and costly custom code.",
-    icon: Cog,
-  },
-  {
-    tag: "Decision Intelligence",
-    title: "Consolidated Analytics",
-    desc: "Unify financial reporting, group consolidation, and real-time FP&A forecasts with SAP Analytics Cloud.",
-    icon: Database,
-  },
-  {
-    tag: "Delivery Governance",
-    title: "De-risked Execution",
-    desc: "Rigorous testing, cutover management, data reconciliation, and user adoption for predictable go-lives.",
-    icon: ShieldCheck,
-  },
-];
+  const pillars: any[] = meta.pillars || [
+    {
+      tag: "Advisory & Roadmap",
+      title: "S/4HANA Transformation",
+      desc: "Tailored migration pathways (Greenfield, Brownfield, or Selective) with clear ROI modeling and clean core architecture.",
+      icon: "Target",
+    },
+    {
+      tag: "Process Optimization",
+      title: "Standardized Operations",
+      desc: "Align enterprise workflows with SAP standard best practices, reducing complexity and costly custom code.",
+      icon: "Cog",
+    },
+    {
+      tag: "Decision Intelligence",
+      title: "Consolidated Analytics",
+      desc: "Unify financial reporting, group consolidation, and real-time FP&A forecasts with SAP Analytics Cloud.",
+      icon: "Database",
+    },
+    {
+      tag: "Delivery Governance",
+      title: "De-risked Execution",
+      desc: "Rigorous testing, cutover management, data reconciliation, and user adoption for predictable go-lives.",
+      icon: "ShieldCheck",
+    },
+  ];
 
-export default function SapImplementationPage({ offerings, impacts }: { offerings: ServiceItem[]; impacts: ServiceItem[] }) {
+  const metrics: any[] = meta.metrics || [
+    { value: "9+", label: "Years Experience" },
+    { value: "100+", label: "Projects Delivered" },
+    { value: "100%", label: "Delivery Ownership" },
+  ];
+
   return (
     <main className="service-detail-page public-alternating-page font-sans overflow-hidden bg-[#030713] text-white">
       {/* HERO */}
       <ServiceHero
         eyebrow=""
-        title="Strategy, Implementation & Full-Lifecycle SAP Consulting"
-        subtitle="Plan, deliver, and optimize standard and cloud-native SAP landscapes with accountable delivery ownership."
+        title={service?.title ? `Strategy, Implementation & Full-Lifecycle ${service.title}` : "Strategy, Implementation & Full-Lifecycle SAP Consulting"}
+        subtitle={service?.subtitle || "Plan, deliver, and optimize standard and cloud-native SAP landscapes with accountable delivery ownership."}
         primaryCta={{ label: "Consult our SAP team", href: "/contact" }}
         secondaryCta={{ label: "Explore all services", href: "/services" }}
-        metrics={[
-          { value: "9+", label: "Years Experience" },
-          { value: "100+", label: "Projects Delivered" },
-          { value: "100%", label: "Delivery Ownership" },
-        ]}
+        metrics={metrics}
       />
 
       {/* INTRODUCTION + HERO TAIL */}
@@ -91,7 +114,7 @@ export default function SapImplementationPage({ offerings, impacts }: { offering
           <div>
             <SlideReveal direction="left">
               <SectionLabel dark={false}>Our approach</SectionLabel>
-              <h2 className={`mt-2 text-[clamp(1.4rem,2.6vw,2.1rem)] font-bold leading-[1.16] tracking-[-0.02em] text-slate-900`}>
+              <h2 className="mt-2 text-[clamp(1.4rem,2.6vw,2.1rem)] font-bold leading-[1.16] tracking-[-0.02em] text-slate-900">
                 Strategy, technology and data — one transformation
               </h2>
               <p className="mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
@@ -103,7 +126,7 @@ export default function SapImplementationPage({ offerings, impacts }: { offering
             <StaggerReveal className="mt-10 grid max-w-xl gap-3" stagger={0.08}>
               {impacts.slice(0, 2).map((i) => (
                 <StaggerRevealItem key={i.title} variant="fadeIn">
-                  <div className="service-surface-card flex items-start gap-3 rounded-2xl border-0 bg-white text-slate-900 border border-slate-200 p-4 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md">
+                  <div className="service-surface-card flex items-start gap-3 rounded-2xl bg-white text-slate-900 border border-slate-200 p-4 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md">
                     <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-900 shadow-xs">
                       <CheckCircle2 className="h-4.5 w-4.5 text-slate-900" />
                     </span>
@@ -118,8 +141,8 @@ export default function SapImplementationPage({ offerings, impacts }: { offering
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-stretch">
-            {CONSULTING_PILLARS.map((p, idx) => {
-              const Icon = p.icon;
+            {pillars.map((p, idx) => {
+              const Icon = ICON_MAP[p.icon] || Target;
               return (
                 <Reveal key={p.title} delay={idx * 0.08} className="h-full">
                   <div className="h-full rounded-2xl border border-slate-200 bg-white text-slate-900 p-5 sm:p-6 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between">
@@ -161,8 +184,8 @@ export default function SapImplementationPage({ offerings, impacts }: { offering
           <div className="relative mt-14">
             <div aria-hidden className="absolute left-6 top-0 h-full w-px bg-gradient-to-b from-[#38bdf8]/70 via-[#38bdf8]/50 to-transparent lg:left-0 lg:top-8 lg:h-px lg:w-full lg:bg-gradient-to-r z-0" />
             <div className="grid gap-6 lg:grid-cols-5 relative z-10">
-              {STEPS.map((s, i) => {
-                const Icon = s.icon;
+              {steps.map((s, i) => {
+                const Icon = ICON_MAP[s.icon] || Target;
                 return (
                   <StaggerRevealItem key={s.n} variant="scale" className="relative pl-16 lg:pl-0 lg:pt-10">
                     <span
@@ -218,14 +241,14 @@ export default function SapImplementationPage({ offerings, impacts }: { offering
             {offerings.map((o, i) => (
               <StaggerRevealItem key={o.title} variant="scale">
                 <div className="h-full rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md p-7">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-[11px] font-bold text-slate-900">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <h3 className="text-xl font-bold text-slate-900">{o.title}</h3>
-                    </div>
-                    <p className="mt-4 leading-7 text-slate-600">{o.description}</p>
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-[11px] font-bold text-slate-900">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="text-xl font-bold text-slate-900">{o.title}</h3>
                   </div>
+                  <p className="mt-4 leading-7 text-slate-600">{o.description}</p>
+                </div>
               </StaggerRevealItem>
             ))}
           </div>
@@ -250,8 +273,8 @@ export default function SapImplementationPage({ offerings, impacts }: { offering
           <div className="detail-split-grid mt-14 grid gap-10 lg:grid-cols-2 lg:items-center">
             <div className="relative">
               <div aria-hidden className="absolute left-6 top-0 h-full w-px bg-gradient-to-b from-[#38bdf8]/60 to-[#38bdf8]/20" />
-              {STACK.map((s, i) => {
-                const Icon = s.icon;
+              {stack.map((s, i) => {
+                const Icon = ICON_MAP[s.icon] || ShieldCheck;
                 return (
                   <Reveal key={s.label} delay={i * 0.1}>
                     <div className="relative mb-5 pl-16 last:mb-0">
@@ -272,7 +295,7 @@ export default function SapImplementationPage({ offerings, impacts }: { offering
               <Reveal delay={0.15}>
                 <div className="service-surface-card relative overflow-hidden rounded-3xl border border-white/10 bg-[#162032]/90 p-8 backdrop-blur-md">
                   <div className="flex items-center justify-between">
-                     <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#38bdf8]">Clean core model</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#38bdf8]">Clean core model</p>
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 px-2.5 py-1 text-[10px] font-bold text-white">
                       <Lock className="h-3 w-3" /> Standard & stable
                     </span>
@@ -286,7 +309,7 @@ export default function SapImplementationPage({ offerings, impacts }: { offering
                     </div>
                   </div>
                   <div className="mt-8 grid grid-cols-3 gap-2.5">
-                    {EXTENSIONS.map((e) => (
+                    {extensions.map((e) => (
                       <div key={e} className="flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-2 py-2 text-center text-[10px] font-semibold text-slate-200">
                         {e}
                       </div>
@@ -341,4 +364,3 @@ export default function SapImplementationPage({ offerings, impacts }: { offering
     </main>
   );
 }
-

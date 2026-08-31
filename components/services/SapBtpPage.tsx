@@ -8,42 +8,63 @@ import {
   MousePointerClick,
   Plug,
   Puzzle,
+  LucideIcon,
 } from "lucide-react";
 import { Reveal, SlideReveal, StaggerReveal, StaggerRevealItem } from "@/components/motion/Reveal";
 import ServiceHero from "@/components/services/ServiceHero";
 import { Glass, Metric, SectionLabel, introLead } from "@/components/services/service-ui";
 import Container from "@/components/ui/Container";
+import type { ServiceDetailData } from "@/lib/services/services.service";
 
+const ICON_MAP: Record<string, LucideIcon> = {
+  LayoutDashboard,
+  Puzzle,
+  MousePointerClick,
+  Plug,
+  Database,
+  Brain,
+};
 
 type ServiceItem = { title: string; description: string };
 
-const TRACKS = [
-  { label: "Applications", desc: "Cloud-native apps built around specific business needs — without disrupting the core.", icon: LayoutDashboard },
-  { label: "Extensions", desc: "Upgrade-ready side-by-side extensions using SAP Extension Suite.", icon: Puzzle },
-  { label: "Experiences", desc: "Intuitive Fiori and UI5 interfaces that lift productivity and adoption.", icon: MousePointerClick },
-];
+export default function SapBtpPage({
+  service,
+  offerings,
+  impacts,
+}: {
+  service?: ServiceDetailData | null;
+  offerings: ServiceItem[];
+  impacts: ServiceItem[];
+}) {
+  const meta = service?.metaData || {};
+  const tracks: any[] = meta.tracks || [
+    { label: "Applications", desc: "Cloud-native apps built around specific business needs — without disrupting the core.", icon: "LayoutDashboard" },
+    { label: "Extensions", desc: "Upgrade-ready side-by-side extensions using SAP Extension Suite.", icon: "Puzzle" },
+    { label: "Experiences", desc: "Intuitive Fiori and UI5 interfaces that lift productivity and adoption.", icon: "MousePointerClick" },
+  ];
 
-const TRIPLETS = [
-  { label: "Integration", desc: "Governed APIs, events, and connectors that unify SAP and third-party systems.", icon: Plug },
-  { label: "Data", desc: "Model and expose enterprise data for responsive, real-time applications.", icon: Database },
-  { label: "AI", desc: "Embed intelligence and automation into the experiences you build.", icon: Brain },
-];
+  const triplets: any[] = meta.triplets || [
+    { label: "Integration", desc: "Governed APIs, events, and connectors that unify SAP and third-party systems.", icon: "Plug" },
+    { label: "Data", desc: "Model and expose enterprise data for responsive, real-time applications.", icon: "Database" },
+    { label: "AI", desc: "Embed intelligence and automation into the experiences you build.", icon: "Brain" },
+  ];
 
-export default function SapBtpPage({ offerings, impacts }: { offerings: ServiceItem[]; impacts: ServiceItem[] }) {
+  const metrics: any[] = meta.metrics || [
+    { value: "Clean Core", label: "Architecture Compliant" },
+    { value: "Full-Stack", label: "CAP, RAP, UI5 & Fiori" },
+    { value: "Secure", label: "Enterprise BTP Runtime" },
+  ];
+
   return (
     <main className="service-detail-page public-alternating-page font-sans overflow-hidden bg-[#030713] text-white">
       {/* HERO */}
       <ServiceHero
         eyebrow="SAP BTP Full-Stack Development"
-        title="Custom Cloud Applications & Side-by-Side Extensions"
-        subtitle="Build modern portals, mobile workflows, and clean-core extensions on SAP Business Technology Platform."
+        title={service?.title ? `Custom Cloud Applications & ${service.title}` : "Custom Cloud Applications & Side-by-Side Extensions"}
+        subtitle={service?.subtitle || "Build modern portals, mobile workflows, and clean-core extensions on SAP Business Technology Platform."}
         primaryCta={{ label: "Consult BTP architects", href: "/contact" }}
         secondaryCta={{ label: "Explore all services", href: "/services" }}
-        metrics={[
-          { value: "Clean Core", label: "Architecture Compliant" },
-          { value: "Full-Stack", label: "CAP, RAP, UI5 & Fiori" },
-          { value: "Secure", label: "Enterprise BTP Runtime" },
-        ]}
+        metrics={metrics}
       />
 
       {/* WHAT WE BUILD + HERO TAIL */}
@@ -61,11 +82,11 @@ export default function SapBtpPage({ offerings, impacts }: { offerings: ServiceI
               </p>
             </SlideReveal>
             <StaggerReveal className="mt-10 grid gap-3 sm:grid-cols-3" stagger={0.1}>
-              {TRACKS.map((t) => {
-                const Icon = t.icon;
+              {tracks.map((t) => {
+                const Icon = ICON_MAP[t.icon] || LayoutDashboard;
                 return (
                   <StaggerRevealItem key={t.label} variant="fadeIn" className="h-full">
-                    <div className="service-surface-card flex h-full flex-col p-5 rounded-2xl border-0 bg-white text-slate-900 border border-slate-200 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md">
+                    <div className="service-surface-card flex h-full flex-col p-5 rounded-2xl bg-white text-slate-900 border border-slate-200 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md">
                       <div className="flex items-center text-cyan-600">
                         <Icon className="h-7 w-7 text-cyan-600 stroke-cyan-600" strokeWidth={2} />
                       </div>
@@ -103,110 +124,110 @@ export default function SapBtpPage({ offerings, impacts }: { offerings: ServiceI
         </div>
       </section>
 
-      {/* CAPABILITIES */}
-      <section className="relative bg-[#050817] text-white py-20 sm:py-24 border-b border-white/10">
-        <div aria-hidden className="absolute inset-0 tri-mesh opacity-50" />
+      {/* THREE PILLARS (DARK) */}
+      <section className="relative overflow-hidden bg-[#050817] py-20 text-white sm:py-28 border-b border-white/10">
+        <div aria-hidden className="absolute inset-0 tri-hex-grid opacity-60" />
         <Container className="relative">
           <Reveal className="max-w-2xl">
-            <SectionLabel dark={true}>What we deliver</SectionLabel>
+            <SectionLabel dark={true}>Technology foundation</SectionLabel>
             <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
-              Full-stack capabilities on SAP BTP
+              Integration, data and AI together
             </h2>
             <p className="mt-5 text-lg leading-8 text-slate-300">
-              Reusable services and proven patterns across the entire application stack.
+              Applications are only as good as the platform underneath. We bring together integration, data models,
+              and intelligent services into one coherent architecture.
             </p>
           </Reveal>
+
+          <StaggerReveal className="mt-14 grid gap-6 md:grid-cols-3" stagger={0.12}>
+            {triplets.map((t) => {
+              const Icon = ICON_MAP[t.icon] || Plug;
+              return (
+                <StaggerRevealItem key={t.label} variant="scale">
+                  <div className="service-surface-card flex h-full flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur-sm">
+                    <div>
+                      <div className="flex items-center text-white">
+                        <Icon className="h-7 w-7 text-white stroke-white" strokeWidth={2} />
+                      </div>
+                      <h3 className="mt-5 text-2xl font-bold text-white">{t.label}</h3>
+                      <p className="mt-3 text-base leading-7 text-slate-300">{t.desc}</p>
+                    </div>
+                  </div>
+                </StaggerRevealItem>
+              );
+            })}
+          </StaggerReveal>
+        </Container>
+      </section>
+
+      {/* CORE OFFERINGS */}
+      <section className="relative bg-[#a8c0f1] bg-[radial-gradient(circle_at_15%_20%,#85a1da_0%,transparent_45%),radial-gradient(circle_at_70%_15%,#9eb6ce_0%,transparent_50%),radial-gradient(circle_at_35%_65%,#9cafda_0%,transparent_55%),radial-gradient(circle_at_85%_70%,#97b3f0_0%,transparent_50%),radial-gradient(circle_at_10%_90%,#c2dbec_0%,transparent_40%)] bg-blend-screen text-slate-900 py-20 sm:py-24 border-b border-slate-200">
+        <Container>
+          <div className="detail-split-grid grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+            <Reveal>
+              <SectionLabel dark={false}>Development scope</SectionLabel>
+              <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+                BTP solutions across your stack
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="max-w-xl text-lg leading-8 text-slate-600">
+                From simple mobile apps to complex multi-system workflow engines, we build maintainable software that
+                grows with your business.
+              </p>
+            </Reveal>
+          </div>
 
           <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {offerings.map((o, i) => (
               <StaggerRevealItem key={o.title} variant="scale">
-                <Glass variant="frosted" tone={i % 2 ? "cyan" : "amber"} className="h-full p-7">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-xl text-[11px] font-bold text-white bg-slate-900">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <h3 className="text-xl font-bold text-white">{o.title}</h3>
-                    </div>
-                    <p className="mt-4 leading-7 text-slate-300">{o.description}</p>
-                  </Glass>
+                <div className="h-full rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md p-7">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-[11px] font-bold text-slate-900">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="text-xl font-bold text-slate-900">{o.title}</h3>
+                  </div>
+                  <p className="mt-4 leading-7 text-slate-600">{o.description}</p>
+                </div>
               </StaggerRevealItem>
             ))}
           </div>
         </Container>
       </section>
 
-      {/* APP ARCHITECTURE */}
-      <section className="relative overflow-hidden bg-[#a8c0f1] bg-[radial-gradient(circle_at_15%_20%,#85a1da_0%,transparent_45%),radial-gradient(circle_at_70%_15%,#9eb6ce_0%,transparent_50%),radial-gradient(circle_at_35%_65%,#9cafda_0%,transparent_55%),radial-gradient(circle_at_85%_70%,#97b3f0_0%,transparent_50%),radial-gradient(circle_at_10%_90%,#c2dbec_0%,transparent_40%)] bg-blend-screen text-slate-900 py-20 sm:py-28 border-b border-slate-200">
+      {/* WHY OUR BTP (DARK) */}
+      <section className="relative overflow-hidden bg-[#050817] py-20 text-white sm:py-28 border-b border-white/10">
+        <div aria-hidden className="absolute inset-0 tri-grid-bg opacity-50" />
         <Container className="relative">
-          <div className="mx-auto max-w-5xl">
+          <div className="detail-split-grid grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
             <div>
               <Reveal>
-                <SectionLabel dark={false}>Application architecture</SectionLabel>
-                <h2 className="mt-5 text-3xl font-extrabold tracking-tight sm:text-5xl text-slate-900">
-                  One coherent technology stack
+                <SectionLabel dark={true}>Business value</SectionLabel>
+                <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+                  Built to scale, built to last
                 </h2>
-                <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
-                  Every layer has a job. Fiori on top, CAP services underneath, and the SAP core kept standard at the
-                  foundation.
+              </Reveal>
+              <Reveal delay={0.1}>
+                <p className="mt-6 text-lg leading-8 text-slate-300">
+                  Every application we build is designed with governance, test coverage, and documentation from day one
+                  — so your internal teams can maintain and extend it with confidence.
                 </p>
               </Reveal>
-              <StaggerReveal className="mt-8 grid gap-3 sm:grid-cols-2" stagger={0.08}>
-                {impacts.slice(0, 4).map((i) => (
-                  <StaggerRevealItem key={i.title} variant="fadeIn">
-                    <div className="btp-impact-card flex items-start gap-3 rounded-2xl border-0 bg-white text-slate-900 border border-slate-200 p-4 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md">
-                      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-900 shadow-xs">
-                        <CheckCircle2 className="h-4.5 w-4.5 text-slate-900" />
-                      </span>
-                      <div>
-                        <p className="font-bold text-slate-900">{i.title}</p>
-                        <p className="mt-1 text-xs leading-5 text-slate-600">{i.description}</p>
-                      </div>
-                    </div>
-                  </StaggerRevealItem>
-                ))}
-              </StaggerReveal>
             </div>
-          </div>
-        </Container>
-      </section>
 
-      {/* INTEGRATION · DATA · AI */}
-      <section className="relative bg-[#050817] text-white py-20 sm:py-24 border-b border-white/10">
-        <div aria-hidden className="absolute inset-0 tri-mesh opacity-50" />
-        <Container className="relative">
-          <Reveal className="mx-auto max-w-2xl text-center">
-            <SectionLabel dark={true} className="justify-center">Connected by default</SectionLabel>
-            <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
-              Everything your apps need
-            </h2>
-          </Reveal>
-
-          <StaggerReveal className="mt-12 grid gap-6 md:grid-cols-3" stagger={0.12}>
-            {TRIPLETS.map((t) => {
-              const Icon = t.icon;
-              return (
-                <StaggerRevealItem key={t.label} variant="fadeIn">
-                  <div className="service-surface-card flex h-full flex-col items-center rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center shadow-xl backdrop-blur-xl">
-                    <span className="btp-connected-icon flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#38bdf8] to-[#2563eb] text-white shadow-lg">
-                      <Icon className="h-7 w-7" strokeWidth={1.8} />
-                    </span>
-                    <h3 className="mt-5 text-xl font-bold text-white">{t.label}</h3>
-                    <p className="mt-3 text-sm leading-7 text-slate-300">{t.desc}</p>
+            <StaggerReveal className="grid gap-5 sm:grid-cols-2" stagger={0.1}>
+              {impacts.map((i) => (
+                <StaggerRevealItem key={i.title} variant="slideRight">
+                  <div className="service-surface-card h-full rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm">
+                    <CheckCircle2 className="h-6 w-6 text-[#38bdf8]" />
+                    <h3 className="mt-4 text-xl font-bold text-white">{i.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{i.description}</p>
                   </div>
                 </StaggerRevealItem>
-              );
-            })}
-          </StaggerReveal>
-
-          <Reveal delay={0.15}>
-            <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
-              {["CAP", "RAP", "Fiori", "UI5", "Cloud Foundry", "Kyma", "HANA Cloud", "Integration Suite"].map((t) => (
-                <span key={t} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-300 backdrop-blur-sm">
-                  {t}
-                </span>
               ))}
-            </div>
-          </Reveal>
+            </StaggerReveal>
+          </div>
         </Container>
       </section>
     </main>

@@ -1,40 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Compass, GraduationCap, Sparkles, TrendingUp, Users } from "lucide-react";
+import { CheckCircle2, Compass, GraduationCap, Sparkles, TrendingUp, Users, LucideIcon } from "lucide-react";
+import type { CareerPerk, CareerMetric } from "@/lib/services/careers.service";
 
-export default function CareersCultureShowcase() {
-  const perks = [
-    {
-      icon: GraduationCap,
-      title: "SAP Certifications & Learning",
-      desc: "Sponsored certifications across S/4HANA, BTP, PaPM, SAC & AI.",
-      badge: "Growth",
-      tone: "blue",
-    },
-    {
-      icon: Users,
-      title: "Direct Leadership Mentorship",
-      desc: "Work closely with seasoned architects and directors on enterprise programs.",
-      badge: "Mentorship",
-      tone: "blue",
-    },
-    {
-      icon: TrendingUp,
-      title: "Merit-Driven Progression",
-      desc: "Clear career advancement tied to delivery impact, ownership, and skill growth.",
-      badge: "Fast-Track",
-      tone: "blue",
-    },
-    {
-      icon: Compass,
-      title: "Modern Hybrid Workplace",
-      desc: "Flexible, outcome-oriented work model built for balance and high performance.",
-      badge: "Flexibility",
-      tone: "blue",
-    },
-  ];
+const ICON_MAP: Record<string, LucideIcon> = {
+  GraduationCap,
+  Users,
+  TrendingUp,
+  Compass,
+};
 
+export default function CareersCultureShowcase({
+  perks = [],
+  metrics = [],
+}: {
+  perks?: CareerPerk[];
+  metrics?: CareerMetric[];
+}) {
   return (
     <div className="relative h-full">
       {/* Background ambient glow */}
@@ -64,10 +47,10 @@ export default function CareersCultureShowcase() {
           </span>
         </div>
 
-        {/* 2x2 Perks Grid */}
+        {/* Perks Grid from PostgreSQL */}
         <div className="relative z-10 mt-6 grid flex-1 gap-4 sm:grid-cols-2">
           {perks.map((perk, idx) => {
-            const Icon = perk.icon;
+            const Icon = ICON_MAP[perk.icon] || GraduationCap;
             return (
               <motion.div
                 key={perk.title}
@@ -101,20 +84,14 @@ export default function CareersCultureShowcase() {
           })}
         </div>
 
-        {/* Bottom Key Metric Highlights */}
+        {/* Bottom Key Metric Highlights from PostgreSQL */}
         <div className="relative z-10 mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-5 text-center">
-          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-2.5">
-            <p className="text-xl font-extrabold text-white">100%</p>
-            <p className="mt-0.5 text-[11px] font-medium text-slate-400">Project Ownership</p>
-          </div>
-          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-2.5">
-            <p className="text-xl font-extrabold text-white">Global</p>
-            <p className="mt-0.5 text-[11px] font-medium text-slate-400">Enterprise Clients</p>
-          </div>
-          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-2.5">
-            <p className="text-xl font-extrabold text-white">5/5</p>
-            <p className="mt-0.5 text-[11px] font-medium text-slate-400">Satisfaction</p>
-          </div>
+          {metrics.map((m) => (
+            <div key={m.label} className="rounded-xl border border-white/5 bg-white/[0.02] p-2.5">
+              <p className="text-xl font-extrabold text-white">{m.value}</p>
+              <p className="mt-0.5 text-[11px] font-medium text-slate-400">{m.label}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

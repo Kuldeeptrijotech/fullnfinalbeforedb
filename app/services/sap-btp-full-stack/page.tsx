@@ -30,5 +30,5 @@ export default async function Page() {
     { title: "Anywhere Access", description: "Create responsive experiences for desktop, tablet, and mobile users." },
   ];
 
-  return <SapBtpPage offerings={offerings} impacts={impacts} />;
+  return <SapBtpPage service={service} offerings={offerings} impacts={impacts} />;
 }

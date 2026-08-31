@@ -19,6 +19,17 @@ export type LeadershipMemberData = {
   description: string;
 };
 
+export type AboutPillarData = {
+  icon: string;
+  title: string;
+  description: string;
+};
+
+export type AboutMetricData = {
+  value: string;
+  label: string;
+};
+
 export type AboutUsPageData = {
   heroTitle: string;
   heroSubtitle: string;
@@ -30,6 +41,8 @@ export type AboutUsPageData = {
   purposes: AboutPurposeData[];
   values: AboutValueData[];
   leadership: LeadershipMemberData[];
+  pillars: AboutPillarData[];
+  metrics: AboutMetricData[];
 };
 
 export async function getAboutUsPageData(): Promise<AboutUsPageData> {
@@ -49,6 +62,35 @@ export async function getAboutUsPageData(): Promise<AboutUsPageData> {
       }),
     ]);
 
+    const defaultPillars: AboutPillarData[] = [
+      {
+        icon: "Layers",
+        title: "Full-Stack SAP Architecture",
+        description: "Deep expertise spanning SAP S/4HANA, BTP, SAC, PaPM, and BW/4HANA integration.",
+      },
+      {
+        icon: "Network",
+        title: "Connected Data & Governance",
+        description: "Unifying transactional systems and analytical models for trusted decision-making.",
+      },
+      {
+        icon: "ShieldCheck",
+        title: "Accountable Delivery Ownership",
+        description: "Dedicated consultant teams staying close to outcomes from strategy to run-phase.",
+      },
+      {
+        icon: "Users",
+        title: "True Collaborative Partnership",
+        description: "Transparent knowledge transfer and long-term client enablement at every milestone.",
+      },
+    ];
+
+    const defaultMetrics: AboutMetricData[] = [
+      { value: "9+", label: "Years Experience" },
+      { value: "100%", label: "Delivery Ownership" },
+      { value: "Global", label: "Enterprise Reach" },
+    ];
+
     return {
       heroTitle: config?.heroTitle || "Technology shaped around real outcomes",
       heroSubtitle:
@@ -58,14 +100,16 @@ export async function getAboutUsPageData(): Promise<AboutUsPageData> {
       whoWeAreTitle: config?.whoWeAreTitle || "Deep expertise, close collaboration",
       whoWeAreDescription1:
         config?.whoWeAreDescription1 ||
-        "Trijotech is a technology consulting company focused on SAP, enterprise data, analytics, integration, and intelligent automation.",
+        "Trijotech was founded on a simple principle: enterprise technology should create measurable business outcomes, not unnecessary complexity.",
       whoWeAreDescription2:
         config?.whoWeAreDescription2 ||
-        "Our consultants bring global experience and a collaborative mindset to every engagement.",
+        "We are practitioners, architects, and problem solvers who take ownership of critical systems — from architecture design and integration to ongoing AMS support.",
       expertiseNote: config?.expertiseNote || "Expertise shaped around measurable business value",
       purposes: purposes.map((p) => ({ label: p.label, title: p.title, text: p.text })),
       values: values.map((v) => ({ number: v.number, title: v.title, description: v.description })),
       leadership: leadership.map((l) => ({ name: l.name, role: l.role, image: l.image, description: l.description })),
+      pillars: (config?.pillars as unknown as AboutPillarData[]) || defaultPillars,
+      metrics: (config?.metrics as unknown as AboutMetricData[]) || defaultMetrics,
     };
   } catch (error) {
     console.error("Error fetching about us page data from PostgreSQL:", error);

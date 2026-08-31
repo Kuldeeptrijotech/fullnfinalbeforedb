@@ -34,5 +34,5 @@ export default async function Page() {
     { title: "Sustainable Value", description: "Design scalable solutions that continue to support growth after go-live." },
   ];
 
-  return <SapImplementationPage offerings={offerings} impacts={impacts} />;
+  return <SapImplementationPage service={service} offerings={offerings} impacts={impacts} />;
 }

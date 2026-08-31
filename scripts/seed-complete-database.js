@@ -337,10 +337,91 @@ async function main() {
     create: { id: "global_site_config", key: "global_site_config", value: siteConfigData, description: "Global brand and footer configuration" },
   });
 
+  const insightCards = [
+    {
+      title: "Blogs",
+      href: "/blogs",
+      image: "/assets/heroes/blogs-blue.png",
+      imageAlt: "Trijotech SAP articles and insights",
+      description:
+        "Read practical perspectives on SAP, enterprise technology, analytics, planning, integration, and digital transformation.",
+      cta: "Explore Blogs",
+      icon: "BookOpen",
+      tone: "green",
+    },
+    {
+      title: "Case Studies",
+      href: "/case-studies",
+      image: "/assets/case-studies/financial-analysis-team.png",
+      imageAlt: "Business team reviewing financial analysis and performance reports",
+      description:
+        "See real project challenges, solution approaches, and outcomes across planning, consolidation, analytics, and profitability.",
+      cta: "Explore Case Studies",
+      icon: "FileText",
+      tone: "mix",
+    },
+    {
+      title: "Videos",
+      href: "/videos",
+      image: "/assets/heroes/videos-camera-hero.png",
+      imageAlt: "Trijotech SAP video library",
+      description:
+        "Watch explainers, service overviews, and expert perspectives that make complex SAP and business topics easier to understand.",
+      cta: "Explore Videos",
+      icon: "Clapperboard",
+      tone: "amber",
+    },
+  ];
+
+  await prisma.homepageSectionConfig.upsert({
+    where: { sectionKey: "insights" },
+    update: {
+      title: "Practical perspectives on SAP & enterprise growth",
+      description: "Explore blogs, case studies, and videos covering SAP transformation, cloud architecture, financial planning, integration, and data-driven execution.",
+      customData: { cards: insightCards },
+    },
+    create: {
+      id: "insights",
+      sectionKey: "insights",
+      title: "Practical perspectives on SAP & enterprise growth",
+      description: "Explore blogs, case studies, and videos covering SAP transformation, cloud architecture, financial planning, integration, and data-driven execution.",
+      customData: { cards: insightCards },
+    },
+  });
+
   // ==========================================
   // 3. ABOUT US PAGE
   // ==========================================
   console.log("3. Seeding About Us Page...");
+  const aboutPillars = [
+    {
+      icon: "Layers",
+      title: "Full-Stack SAP Architecture",
+      description: "Deep expertise spanning SAP S/4HANA, BTP, SAC, PaPM, and BW/4HANA integration.",
+    },
+    {
+      icon: "Network",
+      title: "Connected Data & Governance",
+      description: "Unifying transactional systems and analytical models for trusted decision-making.",
+    },
+    {
+      icon: "ShieldCheck",
+      title: "Accountable Delivery Ownership",
+      description: "Dedicated consultant teams staying close to outcomes from strategy to run-phase.",
+    },
+    {
+      icon: "Users",
+      title: "True Collaborative Partnership",
+      description: "Transparent knowledge transfer and long-term client enablement at every milestone.",
+    },
+  ];
+
+  const aboutMetrics = [
+    { value: "9+", label: "Years Experience" },
+    { value: "100%", label: "Delivery Ownership" },
+    { value: "Global", label: "Enterprise Reach" },
+  ];
+
   await prisma.aboutUsPageConfig.upsert({
     where: { id: "default" },
     update: {
@@ -348,9 +429,11 @@ async function main() {
       heroSubtitle: "We help enterprises modernize SAP landscapes, integrate critical data, and turn technology investments into sustainable business advantage.",
       heroImage: "/assets/about/trijotech-team-collaboration-blue.png",
       whoWeAreTitle: "Deep expertise, close collaboration",
-      whoWeAreDescription1: "Trijotech is a technology consulting company focused on SAP, enterprise data, analytics, integration, and intelligent automation. We combine deep functional understanding with hands-on engineering to solve the challenges that matter most to your business.",
-      whoWeAreDescription2: "Our consultants bring global experience and a collaborative mindset to every engagement. Whether modernizing a core platform, improving planning and reporting, or building on SAP BTP, we stay close to the outcome from strategy through support.",
+      whoWeAreDescription1: "Trijotech was founded on a simple principle: enterprise technology should create measurable business outcomes, not unnecessary complexity.",
+      whoWeAreDescription2: "We are practitioners, architects, and problem solvers who take ownership of critical systems — from architecture design and integration to ongoing AMS support.",
       expertiseNote: "Expertise shaped around measurable business value",
+      pillars: aboutPillars,
+      metrics: aboutMetrics,
     },
     create: {
       id: "default",
@@ -358,23 +441,25 @@ async function main() {
       heroSubtitle: "We help enterprises modernize SAP landscapes, integrate critical data, and turn technology investments into sustainable business advantage.",
       heroImage: "/assets/about/trijotech-team-collaboration-blue.png",
       whoWeAreTitle: "Deep expertise, close collaboration",
-      whoWeAreDescription1: "Trijotech is a technology consulting company focused on SAP, enterprise data, analytics, integration, and intelligent automation. We combine deep functional understanding with hands-on engineering to solve the challenges that matter most to your business.",
-      whoWeAreDescription2: "Our consultants bring global experience and a collaborative mindset to every engagement. Whether modernizing a core platform, improving planning and reporting, or building on SAP BTP, we stay close to the outcome from strategy through support.",
+      whoWeAreDescription1: "Trijotech was founded on a simple principle: enterprise technology should create measurable business outcomes, not unnecessary complexity.",
+      whoWeAreDescription2: "We are practitioners, architects, and problem solvers who take ownership of critical systems — from architecture design and integration to ongoing AMS support.",
       expertiseNote: "Expertise shaped around measurable business value",
+      pillars: aboutPillars,
+      metrics: aboutMetrics,
     },
   });
 
   const aboutPurposes = [
     {
       label: "Our Vision",
-      title: "Become the trusted partner every organization relies on.",
-      text: "We aspire to be the partner organizations depend on for simpler, smarter SAP and data transformation that delivers real, lasting value.",
+      title: "Be the trusted SAP and technology partner for modern enterprises.",
+      text: "We envision a future where enterprise systems are agile, cloud-ready, and deeply integrated to drive continuous competitive advantage.",
       sortOrder: 0,
     },
     {
       label: "Our Mission",
-      title: "Make transformation feel achievable.",
-      text: "We bring clarity to complex programs, design around real business needs, and deliver technology that creates lasting value.",
+      title: "Empower teams through scalable architecture and dedicated delivery ownership.",
+      text: "Our mission is to help clients solve complex business challenges with high-performing SAP architectures, intelligent data solutions, and long-term partnership.",
       sortOrder: 1,
     },
     {
@@ -462,6 +547,53 @@ async function main() {
       deliverables: ["Target Architecture Blueprint", "System Sizing & Readiness Report", "Process Fit-Gap Matrix", "Phase-Wise Execution Plan"],
       benefits: ["Accelerate time-to-value", "Minimize implementation risk", "Standardize core processes", "Increase executive visibility"],
       tools: ["SAP S/4HANA", "SAP Activate Methodology", "SAP Signavio", "SAP Solution Manager"],
+      metaData: {
+        steps: [
+          { n: "01", label: "Assess & plan", icon: "Target" },
+          { n: "02", label: "Configure", icon: "Cog" },
+          { n: "03", label: "Develop & test", icon: "Code2" },
+          { n: "04", label: "Migrate data", icon: "Database" },
+          { n: "05", label: "Go-live & optimize", icon: "Rocket" },
+        ],
+        stack: [
+          { label: "Strategy & Governance", desc: "Roadmaps, delivery models, and governance that keep transformation on track.", icon: "ShieldCheck" },
+          { label: "SAP Solutions", desc: "S/4HANA, consolidation, planning, and analytics built around your business.", icon: "Server" },
+          { label: "Platform & Clean Core", desc: "BTP extensions that keep the core standard, stable, and upgrade-ready.", icon: "Layers" },
+          { label: "Data & Foundation", desc: "A trusted data backbone that powers reporting and intelligent decisions.", icon: "Database" },
+        ],
+        extensions: ["Consolidation", "Planning", "Analytics", "Automation", "Integrations", "Profitability"],
+        pillars: [
+          {
+            tag: "Advisory & Roadmap",
+            title: "S/4HANA Transformation",
+            desc: "Tailored migration pathways (Greenfield, Brownfield, or Selective) with clear ROI modeling and clean core architecture.",
+            icon: "Target",
+          },
+          {
+            tag: "Process Optimization",
+            title: "Standardized Operations",
+            desc: "Align enterprise workflows with SAP standard best practices, reducing complexity and costly custom code.",
+            icon: "Cog",
+          },
+          {
+            tag: "Decision Intelligence",
+            title: "Consolidated Analytics",
+            desc: "Unify financial reporting, group consolidation, and real-time FP&A forecasts with SAP Analytics Cloud.",
+            icon: "Database",
+          },
+          {
+            tag: "Delivery Governance",
+            title: "De-risked Execution",
+            desc: "Rigorous testing, cutover management, data reconciliation, and user adoption for predictable go-lives.",
+            icon: "ShieldCheck",
+          },
+        ],
+        metrics: [
+          { value: "9+", label: "Years Experience" },
+          { value: "100+", label: "Projects Delivered" },
+          { value: "100%", label: "Delivery Ownership" },
+        ],
+      },
       sortOrder: 0,
     },
     {
@@ -476,6 +608,25 @@ async function main() {
       deliverables: ["24/7 Tier 1-3 Support", "Monthly SLA Performance Reports", "Root Cause Analysis (RCA)", "Security Patching & Release Management"],
       benefits: ["99.9% uptime for core business processes", "Predictable maintenance costs", "Faster incident resolution", "Continuous compliance audits"],
       tools: ["SAP Solution Manager", "ServiceNow Integration", "SAP EarlyWatch Alert", "SAP Cloud ALM"],
+      metaData: {
+        pillars: [
+          { label: "Monitor", desc: "Proactive 24*7 monitoring keeps critical processes visible before issues surface.", icon: "Activity" },
+          { label: "Respond", desc: "SLAs, triage, and deep expertise resolve incidents quickly across every layer.", icon: "Headphones" },
+          { label: "Improve", desc: "Structured enhancements help the landscape evolve with the business.", icon: "TrendingUp" },
+        ],
+        process: [
+          { label: "Detect", icon: "Activity", tone: "#38bdf8" },
+          { label: "Triage", icon: "SearchCheck", tone: "#ffffff" },
+          { label: "Resolve", icon: "Wrench", tone: "#22d3ee" },
+          { label: "Verify", icon: "RefreshCw", tone: "#67e8f9" },
+          { label: "Improve", icon: "TrendingUp", tone: "#ffffff" },
+        ],
+        metrics: [
+          { value: "24*7*365", label: "Global Coverage" },
+          { value: "<15 min", label: "Critical SLA Response" },
+          { value: "99.9%", label: "System Availability" },
+        ],
+      },
       sortOrder: 1,
     },
     {
@@ -490,6 +641,23 @@ async function main() {
       deliverables: ["Custom BTP Apps & Portal Extensions", "SAP Build Process Automations", "Side-by-Side Clean Core Architecture", "Modern Fiori / UI5 Design System"],
       benefits: ["Clean Core keeping ERP upgrade-ready", "Rapid cross-department automation", "Responsive mobile-first user experience", "Seamless single sign-on"],
       tools: ["SAP BTP", "Cloud Application Programming (CAP)", "RESTful Application Programming (RAP)", "SAP Fiori / UI5"],
+      metaData: {
+        tracks: [
+          { label: "Applications", desc: "Cloud-native apps built around specific business needs — without disrupting the core.", icon: "LayoutDashboard" },
+          { label: "Extensions", desc: "Upgrade-ready side-by-side extensions using SAP Extension Suite.", icon: "Puzzle" },
+          { label: "Experiences", desc: "Intuitive Fiori and UI5 interfaces that lift productivity and adoption.", icon: "MousePointerClick" },
+        ],
+        triplets: [
+          { label: "Integration", desc: "Governed APIs, events, and connectors that unify SAP and third-party systems.", icon: "Plug" },
+          { label: "Data", desc: "Model and expose enterprise data for responsive, real-time applications.", icon: "Database" },
+          { label: "AI", desc: "Embed intelligence and automation into the experiences you build.", icon: "Brain" },
+        ],
+        metrics: [
+          { value: "Clean Core", label: "Architecture Compliant" },
+          { value: "Full-Stack", label: "CAP, RAP, UI5 & Fiori" },
+          { value: "Secure", label: "Enterprise BTP Runtime" },
+        ],
+      },
       sortOrder: 2,
     },
     {
@@ -504,6 +672,18 @@ async function main() {
       deliverables: ["Standardized API & iFlow Catalog", "Automated Data Validation Scripts", "Error Handling & Alerting Framework", "Migration & Cutover Playbooks"],
       benefits: ["Break data silos across third-party tools", "Zero manual data re-keying", "Low-latency transactional sync", "High auditability"],
       tools: ["SAP Integration Suite (CPI)", "SAP PI/PO", "SAP Event Mesh", "OData & REST APIs"],
+      metaData: {
+        pillars: [
+          { label: "Cloud Integration", desc: "Secure interfaces connecting SAP and non-SAP applications via SAP Integration Suite.", icon: "Network" },
+          { label: "API Management", desc: "Governed, cataloged, and reusable APIs for high-throughput enterprise communication.", icon: "Boxes" },
+          { label: "Migration & ETL", desc: "Structured migration tooling, cutover execution, and data validation protocols.", icon: "Database" },
+        ],
+        metrics: [
+          { value: "100M+", label: "Monthly Transactions" },
+          { value: "Real-Time", label: "Event Streaming" },
+          { value: "Zero-Loss", label: "Data Reconciliation" },
+        ],
+      },
       sortOrder: 3,
     },
     {
@@ -518,6 +698,18 @@ async function main() {
       deliverables: ["SAC Executive Dashboards", "PaPM Profitability Models", "Predictive Forecasting Algorithms", "Automated Anomaly Detection Systems"],
       benefits: ["Proactive risk mitigation", "Faster financial close cycles", "Scenario-based financial simulations", "Actionable executive KPIs"],
       tools: ["SAP Analytics Cloud (SAC)", "SAP PaPM", "SAP Datasphere", "SAP Joule & Generative AI"],
+      metaData: {
+        pillars: [
+          { label: "Predictive Analytics", desc: "Machine learning pipelines projecting cash flows, revenue drivers, and supply chain trends.", icon: "Sparkles" },
+          { label: "SAP Analytics Cloud", desc: "Executive boards, KPI dashboards, and live business analytics.", icon: "BarChart3" },
+          { label: "PaPM Profitability", desc: "Multi-dimensional margin allocations across products, channels, and business units.", icon: "Layers" },
+        ],
+        metrics: [
+          { value: "Real-Time", label: "Predictive Inference" },
+          { value: "Granular", label: "Profitability Margins" },
+          { value: "AI Powered", label: "Copilots & SAC" },
+        ],
+      },
       sortOrder: 4,
     },
   ];
@@ -828,6 +1020,61 @@ async function main() {
   // 7. CAREERS PAGE (career_page_configs & career_culture_pillars)
   // ==========================================
   console.log("7. Seeding Careers Page & Culture Pillars...");
+  const careerHighlights = [
+    {
+      icon: "BriefcaseBusiness",
+      title: "Meaningful work",
+      text: "Solve real enterprise challenges across SAP, data, analytics, and automation.",
+    },
+    {
+      icon: "Users",
+      title: "Grow together",
+      text: "Learn alongside experienced consultants in a collaborative, ownership-driven team.",
+    },
+    {
+      icon: "Mail",
+      title: "Start a conversation",
+      text: "Share your experience with us and we will contact you when there is a strong fit.",
+    },
+  ];
+
+  const careerPerks = [
+    {
+      icon: "GraduationCap",
+      title: "SAP Certifications & Learning",
+      desc: "Sponsored certifications across S/4HANA, BTP, PaPM, SAC & AI.",
+      badge: "Growth",
+      tone: "blue",
+    },
+    {
+      icon: "Users",
+      title: "Direct Leadership Mentorship",
+      desc: "Work closely with seasoned architects and directors on enterprise programs.",
+      badge: "Mentorship",
+      tone: "blue",
+    },
+    {
+      icon: "TrendingUp",
+      title: "Merit-Driven Progression",
+      desc: "Clear career advancement tied to delivery impact, ownership, and skill growth.",
+      badge: "Fast-Track",
+      tone: "blue",
+    },
+    {
+      icon: "Compass",
+      title: "Modern Hybrid Workplace",
+      desc: "Flexible, outcome-oriented work model built for balance and high performance.",
+      badge: "Flexibility",
+      tone: "blue",
+    },
+  ];
+
+  const careerMetrics = [
+    { value: "100%", label: "Project Ownership" },
+    { value: "Global", label: "Enterprise Clients" },
+    { value: "5/5", label: "Satisfaction" },
+  ];
+
   await prisma.careerPageConfig.upsert({
     where: { id: "default" },
     update: {
@@ -842,6 +1089,9 @@ async function main() {
         { title: "Collaborative Culture", description: "Direct access to leadership and supportive peer mentors." },
         { title: "Flexible Working", description: "Hybrid models designed to support work-life balance." },
       ],
+      highlights: careerHighlights,
+      perks: careerPerks,
+      metrics: careerMetrics,
     },
     create: {
       id: "default",
@@ -856,6 +1106,9 @@ async function main() {
         { title: "Collaborative Culture", description: "Direct access to leadership and supportive peer mentors." },
         { title: "Flexible Working", description: "Hybrid models designed to support work-life balance." },
       ],
+      highlights: careerHighlights,
+      perks: careerPerks,
+      metrics: careerMetrics,
     },
   });
 
@@ -898,6 +1151,31 @@ async function main() {
   // 8. CONTACT PAGE (contact_page_configs)
   // ==========================================
   console.log("8. Seeding Contact Page Config & Addresses...");
+  const contactCards = [
+    {
+      icon: "Phone",
+      title: "Call us",
+      items: [
+        { label: "+91 120-3506433", href: "tel:+911203506433", desc: "Corporate Office" },
+        { label: "+91 7982531976", href: "tel:+917982531976", desc: "Direct Line" },
+      ],
+    },
+    {
+      icon: "Mail",
+      title: "Email us",
+      items: [
+        { label: "sales@trijotech.com", href: "mailto:sales@trijotech.com" },
+      ],
+    },
+    {
+      icon: "MapPin",
+      title: "Visit us",
+      items: [
+        { label: "56A, Infinity Tecnopark, 501, 16, C Block, Phase 2, Sector 62, Noida, Uttar Pradesh 201309" },
+      ],
+    },
+  ];
+
   await prisma.contactPageConfig.upsert({
     where: { id: "default" },
     update: {
@@ -920,6 +1198,7 @@ async function main() {
           lines: ["House No. 74, 2nd Floor, Block B,", "Pocket 6, Sector 7, Rohini,", "North West Delhi - 110085"],
         },
       ],
+      contactCards: contactCards,
       inquiryTypes: ["SAP Consulting", "Support & AMS", "BTP Application Development", "Data & AI Solutions", "General Inquiry"],
     },
     create: {
@@ -943,6 +1222,7 @@ async function main() {
           lines: ["House No. 74, 2nd Floor, Block B,", "Pocket 6, Sector 7, Rohini,", "North West Delhi - 110085"],
         },
       ],
+      contactCards: contactCards,
       inquiryTypes: ["SAP Consulting", "Support & AMS", "BTP Application Development", "Data & AI Solutions", "General Inquiry"],
     },
   });
@@ -953,52 +1233,100 @@ async function main() {
   console.log("9. Seeding Case Studies...");
   const caseStudies = [
     {
-      slug: "global-pharma-bpc-consolidation",
-      title: "Global Life Sciences Firm Modernizes Multi-Entity Legal Consolidation with SAP BPC",
-      client: "Leading Pharma Multinational",
-      industry: "Pharmaceuticals & Life Sciences",
-      challenge: "Manual spreadsheet consolidation across 42 global subsidiaries led to a 14-day financial close cycle, exchange rate reconciliation bottlenecks, and audit compliance risks.",
-      solution: "Trijotech architected and deployed a standardized SAP BPC solution with automated currency translations, intercompany eliminations, and custom disclosure reporting.",
-      outcome: "Reduced financial close cycle from 14 days to 5 days, automated 94% of intercompany matching, and ensured 100% IFRS audit compliance.",
-      metrics: ["65% Faster Monthly Close", "94% Automated Intercompany Match", "100% Audit Compliance"],
+      slug: "maximizing-roi-s4hana-transformations",
+      title: "Maximizing ROI for Large Scale S/4HANA Transformations",
+      client: "Global Enterprise Transformation",
+      industry: "Enterprise S/4HANA",
+      challenge: "Complex multi-country legacy landscape required streamlined processes and innovative SAP tools that ensure a smooth transition with tailored cloud offerings.",
+      solution: "Trijotech architected an end-to-end migration strategy with automated cutover workflows, selective data conversion, and clean core extension architecture.",
+      outcome: "Achieved unparalleled efficiency, cost-effectiveness, zero unexpected disruption, and accelerated time-to-value across 12 countries.",
+      metrics: ["Unparalleled Efficiency", "Zero Core Disruption", "Multi-Country Cloud Conversion"],
       heroImage: "/assets/case-studies/financial-analysis-team.png",
+      images: Array.from(
+        { length: 25 },
+        (_, index) =>
+          `/assets/image/Casestudy1_${index === 0 ? "001" : String(index + 1).padStart(index + 1 >= 10 ? 4 : 3, "0")}.png`,
+      ),
       sortOrder: 0,
       isPublished: true,
     },
     {
-      slug: "retail-chain-s4hana-migration",
-      title: "Enterprise Retailer Completes S/4HANA Cloud System Conversion with Zero Downtime",
-      client: "Pan-Asian Retail Network",
-      industry: "Retail & Supply Chain",
-      challenge: "Legacy ERP could not handle peak holiday transaction spikes and lacked real-time stock visibility across 350+ physical stores and e-commerce portals.",
-      solution: "Delivered a structured SAP S/4HANA migration with automated inventory sync pipelines and real-time point-of-sale integration.",
-      outcome: "Supported 300% surge in peak volume without slowdown and provided live store inventory visibility within 15 seconds.",
-      metrics: ["Zero Critical Cutover Outage", "300% Peak Volume Support", "15s Live Inventory Sync"],
-      heroImage: "/static/Retail_and_supply_chain_image.png",
+      slug: "sap-sac-financial-planning-pharma",
+      title: "SAP SAC Financial Planning for a Major Pharmaceutical Company",
+      client: "Leading Pharma Multinational",
+      industry: "Pharmaceuticals & Life Sciences",
+      challenge: "The pharmaceutical firm required financial planning analyzing data from a complex BW environment across profit centers, business segments, and material costs.",
+      solution: "Built integrated financial planning models and live forecasting boards with SAP Analytics Cloud connecting directly to BW/4HANA.",
+      outcome: "Turned deep data analysis into agile, real-time budgeting that effectively supported the company's long-term financial planning objectives.",
+      metrics: ["Live BW/4HANA Sync", "Granular Cost Planning", "Agile Budgeting"],
+      heroImage: "/assets/case-studies/financial-analysis-team.png",
+      images: Array.from(
+        { length: 8 },
+        (_, index) =>
+          `/assets/image/Casestudy2_${String(index + 1).padStart(3, "0")}.jpg`,
+      ),
       sortOrder: 1,
       isPublished: true,
     },
     {
-      slug: "manufacturing-ams-optimization",
-      title: "Heavy Manufacturer Cuts SAP Support Tickets by 40% with Proactive AMS Governance",
-      client: "Industrial Engineering Conglomerate",
-      industry: "Manufacturing",
-      challenge: "High ticket volume and recurring plant maintenance system slowdowns impacted shop floor dispatch schedules.",
-      solution: "Implemented dedicated 24/7 SLA governance, performance tuning, and root-cause bug remediation across SAP Plant Maintenance and MM modules.",
-      outcome: "Decreased recurring incident tickets by 40% and achieved 99.95% system availability across manufacturing plants.",
-      metrics: ["40% Ticket Volume Reduction", "99.95% System Uptime", "35% Faster SLA Resolution"],
-      heroImage: "/static/Manufacturing.jpg",
+      slug: "elevate-business-sap-papm",
+      title: "Elevate Your Business with SAP Profitability & Performance Management (PaPM)",
+      client: "Commercial Enterprise Group",
+      industry: "Financial & Performance Management",
+      challenge: "Needed to transform the approach to financial and operational performance management with granular multi-dimensional calculations.",
+      solution: "Implemented SAP PaPM solution architecture with rapid calculation functions, cost allocation rules, and real-world scenario modeling.",
+      outcome: "Empowered leadership with instant margin transparency at product, customer, and regional levels.",
+      metrics: ["Multi-Dimension Allocations", "Instant Margin Clarity", "Scenario Simulations"],
+      heroImage: "/assets/case-studies/financial-analysis-team.png",
+      images: Array.from(
+        { length: 11 },
+        (_, index) =>
+          `/assets/image/Casestudy3_${index + 1 >= 10 ? String(index + 1).padStart(4, "0") : String(index + 1).padStart(3, "0")}.png`,
+      ),
       sortOrder: 2,
+      isPublished: true,
+    },
+    {
+      slug: "mis-kpis-dashboard-automotive",
+      title: "MIS & KPIs Dashboard Implementation for a Leading European Automotive Manufacturer using SAP BW/4HANA & SAP Analytics Cloud",
+      client: "Major British Car Manufacturer",
+      industry: "Automotive Manufacturing",
+      challenge: "Executive reporting and key performance indicator tracking was fragmented across separate plant databases and manual spreadsheets.",
+      solution: "Implemented comprehensive MIS reporting and executive KPI dashboards combining SAP BW and SAP Analytics Cloud.",
+      outcome: "Optimized operational business performance through complete real-time visibility over manufacturing and distribution KPIs.",
+      metrics: ["Automotive KPI Dashboard", "Real-Time Shop Floor Insights", "Unified BW/SAC Architecture"],
+      heroImage: "/assets/case-studies/financial-analysis-team.png",
+      images: Array.from(
+        { length: 13 },
+        (_, index) =>
+          `/assets/image/Casestudy4_${index + 1 >= 10 ? String(index + 1).padStart(4, "0") : String(index + 1).padStart(3, "0")}.jpg`,
+      ),
+      sortOrder: 3,
+      isPublished: true,
+    },
+    {
+      slug: "legal-consolidation-disclosure-palm-oil",
+      title: "Legal Consolidation and Disclosure reporting for Major APAC Palm oil Manufacturers using SAP BPC 11.0",
+      client: "Major APAC Palm Oil Manufacturer",
+      industry: "Agriculture & Commodity Manufacturing",
+      challenge: "Required unique multi-currency group consolidation repurposing the Group Currency of one group as a source for another on an alternative currency base.",
+      solution: "Designed and deployed SAP BPC 11.1 NW Legal Consolidation with automated disclosure reporting rules.",
+      outcome: "Seamless automated multi-currency financial consolidation and fully compliant disclosure reporting.",
+      metrics: ["Multi-Currency Group Consolidation", "100% Disclosure Accuracy", "SAP BPC 11.1 Deployment"],
+      heroImage: "/assets/case-studies/financial-analysis-team.png",
+      images: Array.from(
+        { length: 4 },
+        (_, index) =>
+          `/assets/image/Casestudy5_${String(index + 1).padStart(3, "0")}.png`,
+      ),
+      sortOrder: 4,
       isPublished: true,
     },
   ];
 
+  await prisma.caseStudy.deleteMany({});
   for (const cs of caseStudies) {
-    await prisma.caseStudy.upsert({
-      where: { slug: cs.slug },
-      update: cs,
-      create: cs,
-    });
+    await prisma.caseStudy.create({ data: cs });
   }
 
   // ==========================================

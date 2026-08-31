@@ -523,6 +523,8 @@ model AboutUsPageConfig {
   whoWeAreDescription1 String   @db.Text
   whoWeAreDescription2 String   @db.Text
   expertiseNote        String   @default("Expertise shaped around measurable business value")
+  pillars              Json?
+  metrics              Json?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
@@ -583,6 +585,7 @@ model ServiceDetail {
   deliverables String[] @default([])
   benefits     String[] @default([])
   tools        String[] @default([])
+  metaData     Json?
   sortOrder    Int      @default(0)
   isPublished  Boolean  @default(true)
   createdAt    DateTime @default(now())
@@ -656,6 +659,9 @@ model CareerPageConfig {
   cultureTitle    String   @default("Life at Trijotech")
   cultureSubtitle String   @default("A workplace shaped by autonomy, continuous learning, and pride in delivery.")
   benefits        Json?
+  highlights      Json?
+  perks           Json?
+  metrics         Json?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -690,6 +696,7 @@ model ContactPageConfig {
   careersEmail String   @default("hr@trijotech.com")
   phones       Json?
   addresses    Json?
+  contactCards Json?
   inquiryTypes String[] @default(["SAP Consulting", "Support & AMS", "BTP Application Development", "Data & AI Solutions", "General Inquiry"])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -711,6 +718,7 @@ model CaseStudy {
   solution    String   @db.Text
   outcome     String   @db.Text
   metrics     String[] @default([])
+  images      String[] @default([])
   heroImage   String   @default("/assets/case-studies/financial-analysis-team.png")
   sortOrder   Int      @default(0)
   isPublished Boolean  @default(true)

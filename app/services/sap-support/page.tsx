@@ -30,5 +30,5 @@ export default async function Page() {
     { title: "Secure and Compliant", description: "Governance and role controls protect systems and enterprise data." },
   ];
 
-  return <SapSupportPage offerings={offerings} impacts={impacts} />;
+  return <SapSupportPage service={service} offerings={offerings} impacts={impacts} />;
 }

@@ -19,6 +19,8 @@ export default function AboutUsClientView({ data }: { data: AboutUsPageData }) {
     purposes,
     values,
     leadership,
+    pillars,
+    metrics,
   } = data;
 
   return (
@@ -119,7 +121,7 @@ export default function AboutUsClientView({ data }: { data: AboutUsPageData }) {
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.65, delay: 0.15, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
           >
-            <AboutPillarsShowcase />
+            <AboutPillarsShowcase pillars={pillars} metrics={metrics} />
           </motion.div>
         </div>
       </section>

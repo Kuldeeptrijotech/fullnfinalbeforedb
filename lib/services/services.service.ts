@@ -23,6 +23,7 @@ export type ServiceDetailData = {
   deliverables: string[];
   benefits: string[];
   tools: string[];
+  metaData?: Record<string, any>;
 };
 
 export type ServicesPageData = {
@@ -87,6 +88,7 @@ export async function getServiceBySlug(slug: string): Promise<ServiceDetailData 
       deliverables: detail.deliverables,
       benefits: detail.benefits,
       tools: detail.tools,
+      metaData: (detail.metaData as Record<string, any>) || {},
     };
   } catch (error) {
     console.error(`Error fetching service '${slug}' from PostgreSQL:`, error);
