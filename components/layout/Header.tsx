@@ -311,10 +311,10 @@ export default function Header() {
           <Image
             src="/brand/Trijotech_Complete_white.svg"
             alt="Trijotech"
-            width={168}
-            height={44}
+            width={180}
+            height={48}
             priority
-            className="h-10 sm:h-11 w-auto object-contain transition-transform duration-200 hover:scale-105"
+            className="h-11 sm:h-12 w-auto object-contain"
           />
         </Link>
 
