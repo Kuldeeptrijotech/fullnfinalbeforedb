@@ -45,7 +45,7 @@ function validSignature(buffer: Buffer, extension: string) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!isAdminRequest(request) || !sameOrigin(request)) return forbidden();
+  if (!(await isAdminRequest(request)) || !sameOrigin(request)) return forbidden();
   try {
     const form = await request.formData();
     const animationUpload = form.get("animation");
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!isAdminRequest(request) || !sameOrigin(request)) return forbidden();
+  if (!(await isAdminRequest(request)) || !sameOrigin(request)) return forbidden();
   try {
     const body = (await request.json()) as { path?: string };
     if (typeof body.path !== "string" || !body.path.startsWith("/assets/uploads/")) {

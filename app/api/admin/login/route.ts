@@ -9,9 +9,13 @@ export async function POST(request: Request) {
   const address = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
   const userAgent = request.headers.get("user-agent") || "unknown";
 
+  let email = "admin@trijotech.com";
   let password = "";
   try {
-    const body = (await request.json()) as { password?: unknown };
+    const body = (await request.json()) as { email?: unknown; password?: unknown };
+    if (typeof body.email === "string" && body.email.trim()) {
+      email = body.email.trim();
+    }
     password = typeof body.password === "string" ? body.password : "";
   } catch {
     return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
@@ -21,13 +25,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Password is required." }, { status: 400 });
   }
 
-  const result = await authenticateAdmin(password, address, userAgent);
+  const result = await authenticateAdmin(password, email, address, userAgent);
 
   if (!result.success) {
     await logAuditEvent({
       action: "ADMIN_LOGIN_FAILED",
       entityType: "User",
-      metadata: { reason: result.error },
+      metadata: { email, reason: result.error },
       ipAddress: address,
     });
     return NextResponse.json({ error: result.error }, { status: result.status });

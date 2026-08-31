@@ -21,13 +21,13 @@ function sameOrigin(request: NextRequest): boolean {
 }
 
 export async function GET(request: NextRequest) {
-  if (!isAdminRequest(request)) return forbidden();
+  if (!(await isAdminRequest(request))) return forbidden();
   const content = await getSiteContentFromDb();
   return NextResponse.json(content, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function PUT(request: NextRequest) {
-  if (!isAdminRequest(request) || !sameOrigin(request)) return forbidden();
+  if (!(await isAdminRequest(request)) || !sameOrigin(request)) return forbidden();
   try {
     const body = (await request.json()) as {
       scope?: "global" | "page";
@@ -81,7 +81,7 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!isAdminRequest(request) || !sameOrigin(request)) return forbidden();
+  if (!(await isAdminRequest(request)) || !sameOrigin(request)) return forbidden();
   try {
     const body = (await request.json()) as { ids?: string[] };
     if (!Array.isArray(body.ids) || body.ids.length === 0) {

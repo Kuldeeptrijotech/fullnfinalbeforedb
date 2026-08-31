@@ -50,12 +50,12 @@ function refreshed(post?: BlogPost) {
 }
 
 export async function GET(request: NextRequest) {
-  if (!isAdminRequest(request)) return forbidden();
+  if (!(await isAdminRequest(request))) return forbidden();
   return NextResponse.json({ posts: await readBlogPosts() }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: NextRequest) {
-  if (!isAdminRequest(request) || !sameOrigin(request)) return forbidden();
+  if (!(await isAdminRequest(request)) || !sameOrigin(request)) return forbidden();
   try {
     const input = (await request.json()) as Partial<BlogPost>;
     const posts = await readBlogPosts();
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  if (!isAdminRequest(request) || !sameOrigin(request)) return forbidden();
+  if (!(await isAdminRequest(request)) || !sameOrigin(request)) return forbidden();
   try {
     const input = (await request.json()) as Partial<BlogPost>;
     if (!input.id) return NextResponse.json({ error: "Blog ID is required." }, { status: 400 });
@@ -120,7 +120,7 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!isAdminRequest(request) || !sameOrigin(request)) return forbidden();
+  if (!(await isAdminRequest(request)) || !sameOrigin(request)) return forbidden();
   try {
     const body = (await request.json()) as { id?: string };
     const posts = await readBlogPosts();

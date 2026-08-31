@@ -59,15 +59,20 @@ export type LoginResult =
 
 export async function authenticateAdmin(
   passwordInput: string,
+  emailInput: string = "admin@trijotech.com",
   ipAddress?: string,
   userAgent?: string
 ): Promise<LoginResult> {
-  const email = "admin@trijotech.com";
+  const email = (emailInput || "admin@trijotech.com").toLowerCase().trim();
   let user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {
-    // If no admin exists, bootstrap with current ADMIN_PASSWORD
-    user = await createOrUpdateDefaultAdmin();
+    if (email === "admin@trijotech.com") {
+      // Bootstrap default admin if not yet created in PostgreSQL
+      user = await createOrUpdateDefaultAdmin();
+    } else {
+      return { success: false, error: "Invalid credentials.", status: 401 };
+    }
   }
 
   if (!user.isActive) {

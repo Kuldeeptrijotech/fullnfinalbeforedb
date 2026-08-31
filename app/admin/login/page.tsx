@@ -1,10 +1,11 @@
-﻿import { cookies } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { SESSION_COOKIE, verifySessionToken } from "@/app/lib/admin-auth";
+import { SESSION_COOKIE, verifyAdminSession } from "@/app/lib/admin-auth";
 import AdminLogin from "./AdminLogin";
 
 export default async function LoginPage() {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (verifySessionToken(token)) redirect("/admin");
+  const user = await verifyAdminSession(token);
+  if (user) redirect("/admin");
   return <AdminLogin />;
 }

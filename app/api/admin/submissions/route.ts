@@ -16,7 +16,7 @@ const forbidden = () => NextResponse.json({ error: "Unauthorized." }, { status: 
 const sameOrigin = (request: NextRequest) => !request.headers.get("origin") || request.headers.get("origin") === request.nextUrl.origin;
 
 export async function GET(request: NextRequest) {
-  if (!isAdminRequest(request)) return forbidden();
+  if (!(await isAdminRequest(request))) return forbidden();
 
   const searchParams = request.nextUrl.searchParams;
   const type = searchParams.get("type") || "all";
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  if (!isAdminRequest(request) || !sameOrigin(request)) return forbidden();
+  if (!(await isAdminRequest(request)) || !sameOrigin(request)) return forbidden();
 
   try {
     const body = (await request.json()) as {
