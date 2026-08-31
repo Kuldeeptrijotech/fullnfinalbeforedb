@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { BlogPost } from "@/app/data/blogs";
+import type { BlogPost } from "@/lib/types/blog.types";
 import BlogActions from "./blog/BlogActions";
 import BlogDetailsForm from "./blog/BlogDetailsForm";
 import BlogPostList from "./blog/BlogPostList";

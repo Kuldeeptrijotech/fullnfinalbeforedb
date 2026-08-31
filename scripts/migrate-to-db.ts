@@ -3,7 +3,7 @@ import path from "node:path";
 import prisma from "../app/lib/db";
 import { createOrUpdateDefaultAdmin } from "../app/lib/services/user.service";
 import type { SiteContent } from "../app/lib/content-store";
-import type { BlogPost } from "../app/data/blogs";
+import type { BlogPost } from "../lib/types/blog.types";
 import type { ChatbotSettings, KnowledgeEntry } from "../app/types/chatbot";
 
 async function migrateAdmin() {

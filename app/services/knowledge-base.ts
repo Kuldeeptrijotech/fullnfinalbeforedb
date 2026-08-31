@@ -1,6 +1,4 @@
 import "server-only";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import type { KnowledgeEntry } from "@/app/types/chatbot";
 import {
   getAllKnowledgeEntriesFromDb,
@@ -8,7 +6,6 @@ import {
   deleteKnowledgeEntryFromDb,
 } from "@/app/lib/services/chatbot.service";
 
-const directory = path.join(process.cwd(), "app", "data", "knowledge-base");
 const stopWords = new Set(["a", "an", "and", "are", "can", "could", "do", "does", "for", "how", "i", "in", "is", "it", "me", "my", "of", "on", "please", "tell", "that", "the", "their", "to", "us", "we", "what", "when", "where", "which", "who", "why", "with", "would", "you", "your"]);
 const words = (value: string) => value.toLowerCase().normalize("NFKD").replace(/[^a-z0-9\s-]/g, " ").split(/\s+/).filter((word) => word.length > 1 && !stopWords.has(word)).map((word) => word.length > 4 && word.endsWith("ies") ? `${word.slice(0, -3)}y` : word.length > 3 && word.endsWith("s") && !word.endsWith("ss") ? word.slice(0, -1) : word);
 
@@ -27,26 +24,11 @@ function scoreEntry(entry: KnowledgeEntry, queryWords: Set<string>, queryText: s
 export async function readKnowledgeEntries(): Promise<KnowledgeEntry[]> {
   try {
     const dbEntries = await getAllKnowledgeEntriesFromDb();
-    if (dbEntries.length > 0) return dbEntries;
+    return dbEntries.filter((entry) => entry.enabled && entry.content?.trim());
   } catch (err) {
-    console.warn("Falling back to local knowledge files:", err);
+    console.error("Error reading knowledge entries from PostgreSQL:", err);
+    return [];
   }
-
-  return loadKnowledgeBaseFiles();
-}
-
-async function loadKnowledgeBaseFiles(): Promise<KnowledgeEntry[]> {
-  let names: string[];
-  try { names = (await fs.readdir(directory)).filter((name) => name.endsWith(".json")); }
-  catch { return []; }
-  const groups = await Promise.all(names.map(async (name) => {
-    try {
-      const parsed = JSON.parse(await fs.readFile(path.join(directory, name), "utf8"));
-      if (Array.isArray(parsed)) return parsed as KnowledgeEntry[];
-      return [];
-    } catch { return []; }
-  }));
-  return groups.flat().filter((entry) => entry.enabled && entry.content?.trim());
 }
 
 export async function searchKnowledge(query: string, limit = 8) {

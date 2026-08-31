@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { createElement, useEffect, useRef, useState } from "react";
-import type { BlogPost } from "@/app/data/blogs";
+import type { BlogPost } from "@/lib/types/blog.types";
 import ImageUploadField from "./ImageUploadField";
 import { resolveBlockStyle } from "@/app/lib/blog-style-resolver";
 

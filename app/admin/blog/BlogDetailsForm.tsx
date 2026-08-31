@@ -1,4 +1,4 @@
-import type { BlogPost } from "@/app/data/blogs";
+import type { BlogPost } from "@/lib/types/blog.types";
 import BlogBlockEditor from "../BlogBlockEditor";
 import ImageUploadField from "../ImageUploadField";
 

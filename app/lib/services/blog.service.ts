@@ -1,5 +1,5 @@
 import prisma from "@/app/lib/db";
-import type { BlogPost } from "@/app/data/blogs";
+import type { BlogPost } from "@/lib/types/blog.types";
 import type { BlogStatus, Prisma } from "@prisma/client";
 
 export async function getAllBlogPostsFromDb(includeDrafts = false): Promise<BlogPost[]> {

@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest, verifyAdminSession, SESSION_COOKIE } from "@/app/lib/admin-auth";
 import { defaultBlogBlockStyle, defaultFeaturedImageStyle, readBlogPosts, uniqueSlug, validateBlogPost, writeBlogStore } from "@/app/lib/blog-store";
 import { logAuditEvent } from "@/app/lib/services/audit.service";
-import type { BlogPost } from "@/app/data/blogs";
+import type { BlogPost } from "@/lib/types/blog.types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

@@ -1,4 +1,4 @@
-import type { BlogPost } from "@/app/data/blogs";
+import type { BlogPost } from "@/lib/types/blog.types";
 
 export default function BlogActions({ post, busy, onSave, onCancel, onDelete }: { post: BlogPost; busy: boolean; onSave: (status: "draft" | "published", preview?: boolean) => void; onCancel: () => void; onDelete: () => void }) {
   return (

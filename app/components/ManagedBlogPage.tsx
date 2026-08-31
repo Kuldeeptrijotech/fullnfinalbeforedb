@@ -1,6 +1,6 @@
 import LatestBlogsCarousel from "./LatestBlogsCarousel";
 import ContactCta from "./common/ContactCta";
-import type { BlogPost } from "@/app/data/blogs";
+import type { BlogPost } from "@/lib/types/blog.types";
 import { createElement } from "react";
 import { resolveBlockStyle } from "@/app/lib/blog-style-resolver";
 

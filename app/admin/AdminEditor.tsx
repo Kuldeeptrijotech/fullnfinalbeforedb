@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ContentEntry, SiteContent } from "@/app/lib/content-store";
-import type { BlogPost } from "@/app/data/blogs";
+import type { BlogPost } from "@/lib/types/blog.types";
 import ImageUploadField from "./ImageUploadField";
 import BlogManager from "./BlogManager";
 import AdminNavbar from "./AdminNavbar";

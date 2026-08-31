@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Blog } from "../../data/blogs";
+import type { Blog } from "@/lib/types/blog.types";
 
 type BlogCardProps = { blog: Blog; variant?: "listing" | "carousel" };
 

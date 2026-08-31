@@ -1,5 +1,3 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { getSiteContentFromDb, saveSiteContentEntriesToDb } from "./services/content.service";
 
 export type ContentKind =
@@ -39,8 +37,6 @@ export type SiteContent = {
   pages: Record<string, PageContent>;
 };
 
-const contentPath = path.join(process.cwd(), "app", "data", "siteContent.json");
-
 const emptyContent = (): SiteContent => ({
   version: 1,
   updatedAt: null,
@@ -51,19 +47,10 @@ const emptyContent = (): SiteContent => ({
 export async function readSiteContent(): Promise<SiteContent> {
   try {
     const dbContent = await getSiteContentFromDb();
-    if (dbContent.updatedAt || Object.keys(dbContent.pages).length > 0) {
-      return dbContent;
-    }
+    return dbContent;
   } catch (err) {
-    console.warn("Falling back to local siteContent.json file:", err);
-  }
-
-  try {
-    const raw = await fs.readFile(contentPath, "utf8");
-    return JSON.parse(raw.replace(/^\uFEFF/, "")) as SiteContent;
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return emptyContent();
-    throw error;
+    console.error("Error reading site content from PostgreSQL:", err);
+    return emptyContent();
   }
 }
 
@@ -105,7 +92,6 @@ export async function writeSiteContent(content: SiteContent): Promise<void> {
     }
   }
 
-  // Save to PostgreSQL
   for (const item of allEntries) {
     await saveSiteContentEntriesToDb({
       entries: [item.entry],
@@ -115,16 +101,6 @@ export async function writeSiteContent(content: SiteContent): Promise<void> {
       sectionKey: item.sectionKey,
       sectionLabel: item.sectionLabel,
     });
-  }
-
-  // Also write file backup
-  try {
-    const next = { ...content, version: 1 as const, updatedAt: new Date().toISOString() };
-    const temporaryPath = `${contentPath}.tmp`;
-    await fs.writeFile(temporaryPath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
-    await fs.rename(temporaryPath, contentPath);
-  } catch (fileErr) {
-    console.warn("Could not write file backup of site content:", fileErr);
   }
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { BlogPost } from "@/app/data/blogs";
+import type { BlogPost } from "@/lib/types/blog.types";
 import AdminNavbar from "../AdminNavbar";
 import BlogManager from "../BlogManager";
 

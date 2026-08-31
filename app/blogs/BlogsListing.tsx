@@ -6,7 +6,7 @@ import { ArrowRight, CalendarDays, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import BlogsThoughtAuroras from "@/components/ui/hero-animations/BlogsThoughtAuroras";
-import type { Blog } from "../data/blogs";
+import type { Blog } from "@/lib/types/blog.types";
 
 export default function BlogsListing({ blogs }: { blogs: Blog[] }) {
   const [query, setQuery] = useState("");
