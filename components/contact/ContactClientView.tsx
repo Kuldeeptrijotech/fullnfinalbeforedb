@@ -12,7 +12,7 @@ export default function ContactClientView({ data }: { data: ContactPageData }) {
   return (
     <main className="public-alternating-page font-sans overflow-hidden bg-[#030713] text-white">
       {/* ──── Hero ────────────────────────────────────────────────────────────── */}
-      <section className="relative isolate flex min-h-[calc(100svh-4.5rem)] flex-col overflow-hidden bg-[#050817] pt-32 sm:pt-36 lg:pt-40 pb-10 sm:pb-12">
+      <section className="relative isolate flex min-h-[calc(100svh-4.5rem)] flex-col overflow-hidden bg-[#050817] pt-24 sm:pt-28 lg:pt-24 pb-10 sm:pb-12">
         <Image
           src={heroImage}
           alt="Contact Trijotech enterprise consulting team"
