@@ -24,7 +24,7 @@ import {
   Zap,
 } from "lucide-react";
 import OtherSolutions from "@/components/solutions/OtherSolutions";
-import type { SolutionItem } from "@/lib/solutions-data";
+import type { SolutionDetailData as SolutionItem } from "@/lib/services/solutions.service";
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 

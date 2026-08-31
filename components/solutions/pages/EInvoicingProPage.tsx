@@ -1,5 +1,5 @@
-﻿import SolutionDetailLanding from "@/components/landing/SolutionDetailLanding";
-import type { SolutionItem } from "@/lib/solutions-data";
+import SolutionDetailLanding from "@/components/landing/SolutionDetailLanding";
+import type { SolutionDetailData as SolutionItem } from "@/lib/services/solutions.service";
 
 export default function EInvoicingProPage({ solution }: { solution: SolutionItem }) {
   return (
@@ -11,4 +11,3 @@ export default function EInvoicingProPage({ solution }: { solution: SolutionItem
     />
   );
 }
-

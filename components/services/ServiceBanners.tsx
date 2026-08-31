@@ -2,106 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ServiceMockupComponents } from "./ServiceMockups";
+import type { ServiceBannerItemData } from "@/lib/services/services.service";
 
-export type ServiceBannerItem = {
-  number: string;
-  title: string;
-  slug: string;
-  rowId: string;
-  description: string;
-  image: string;
-  imageAlt: string;
-  enables: string[];
-};
+export type ServiceBannerItem = ServiceBannerItemData;
 
-const serviceBanners: ServiceBannerItem[] = [
-  {
-    number: "01",
-    title: "SAP Consulting",
-    slug: "sap-consulting",
-    rowId: "srv-consulting",
-    description: "End-to-end SAP transformation and consulting that aligns consolidation, planning, forecasting, analytics, and profitability processes with business goals.",
-    image: "/assets/services/service_consulting_transparent.png",
-    imageAlt: "SAP Consulting architecture roadmap and transformation strategy visualizer",
-    enables: [
-      "Implementation Strategy",
-      "Architecture & Configuration",
-      "Planning & Forecasting",
-      "Analytics & Reporting",
-      "Process Optimization",
-    ],
-  },
-  {
-    number: "02",
-    title: "SAP Support & AMS",
-    slug: "sap-support",
-    rowId: "srv-support-ams",
-    description: "Reliable functional and technical support that keeps SAP landscapes stable, current, efficient, and ready for evolving business needs.",
-    image: "/assets/services/service_support_transparent.png",
-    imageAlt: "24*7 SAP AMS operations and system availability telemetry console",
-    enables: [
-      "Functional & Technical Support",
-      "Post-Go-Live Stabilization",
-      "Upgrades & Enhancements",
-      "Performance Optimization",
-      "24*7 SLA Management",
-    ],
-  },
-  {
-    number: "03",
-    title: "SAP BTP Full Stack Applications",
-    slug: "sap-btp-full-stack",
-    rowId: "srv-btp-fullstack",
-    description: "Modern applications, extensions, workflows, and integrations built on SAP BTP to make enterprise work simpler and faster.",
-    image: "/assets/services/service_btp_transparent.png",
-    imageAlt: "SAP BTP cloud platform architecture and application development stack",
-    enables: [
-      "SAP Fiori & UI5 Modernization",
-      "Process Automation & Workflows",
-      "Full-Stack Cloud Extensions",
-      "Embedded Intelligence",
-      "Multi-Cloud Integration",
-    ],
-  },
-  {
-    number: "04",
-    title: "SAP Data Integration Services",
-    slug: "sap-data-integration",
-    rowId: "srv-data-integration",
-    description: "Secure, scalable interfaces connecting SAP and non-SAP systems through SAP PI/PO, Cloud Integration, APIs, and enterprise protocols.",
-    image: "/assets/services/service_data_integration_transparent.png",
-    imageAlt: "Real-time enterprise data pipeline and multi-cloud integration flow",
-    enables: [
-      "SAP CPI & PI/PO Integration",
-      "API & Middleware Management",
-      "Data Migration & Replication",
-      "Hybrid Cloud Connectivity",
-      "Real-Time Event Streaming",
-    ],
-  },
-  {
-    number: "05",
-    title: "SAP AI & Data Insight Services",
-    slug: "sap-ai-ml",
-    rowId: "srv-ai-ml",
-    description: "AI, predictive analytics, automation, and intelligent insights embedded into core SAP operations and decision-making.",
-    image: "/assets/services/service_ai_analytics_transparent.png",
-    imageAlt: "SAP Analytics Cloud and PaPM profitability insights dashboard",
-    enables: [
-      "SAP Business AI & Copilots",
-      "Predictive Financial Analytics",
-      "Intelligent Process Automation",
-      "Machine Learning Pipelines",
-      "Executive Data Insights",
-    ],
-  },
-];
-
-export default function ServiceBanners() {
+export default function ServiceBanners({ services }: { services?: ServiceBannerItem[] }) {
+  const items = services && services.length > 0 ? services : [];
   return (
     <section id="explore-services" className="service-banners-section w-full overflow-hidden">
       <div className="service-banners-container w-full">
-        {serviceBanners.map((item, index) => {
+        {items.map((item, index) => {
           const isDark = index % 2 === 1; // 0=White, 1=Dark, 2=White, 3=Dark, 4=White
           const isImageRight = index % 2 === 0; // 0=Right, 1=Left, 2=Right, 3=Left, 4=Right
           const Mockup = ServiceMockupComponents[item.slug as keyof typeof ServiceMockupComponents];

@@ -7,9 +7,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import headerData from "@/lib/header-data.json";
 
-type HeaderDropdownItem = {
+export type HeaderDropdownItem = {
   name: string;
   href: string;
   description: string;
@@ -17,7 +16,7 @@ type HeaderDropdownItem = {
   imageUrl: string;
 };
 
-type HeaderNavItem = {
+export type HeaderNavItem = {
   name: string;
   type: "link" | "dropdown";
   href: string;
@@ -54,22 +53,13 @@ const dropdownHeroImages: Record<string, string> = {
 };
 
 function isActiveRoute(pathname: string, href: string) {
-  if (!href) {
-    return false;
-  }
-
-  if (href === "/") {
-    return pathname === "/";
-  }
-
+  if (!href) return false;
+  if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 function isNavItemActive(pathname: string, item: HeaderNavItem) {
-  if (isActiveRoute(pathname, item.href)) {
-    return true;
-  }
-
+  if (isActiveRoute(pathname, item.href)) return true;
   return item.items?.some((child) => isActiveRoute(pathname, child.href)) ?? false;
 }
 
@@ -109,14 +99,35 @@ export default function Header() {
   const [isPastHero, setIsPastHero] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdownName, setOpenDropdownName] = useState<string | null>(null);
-  const [openMobileDropdownName, setOpenMobileDropdownName] = useState<
-    string | null
-  >(null);
+  const [openMobileDropdownName, setOpenMobileDropdownName] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeItemByMenu, setActiveItemByMenu] = useState<
-    Record<string, string>
-  >({});
+  const [activeItemByMenu, setActiveItemByMenu] = useState<Record<string, string>>({});
+
+  const [navData, setNavData] = useState<{
+    brand: { name: string; homeHref: string; logoSrc: string; logoAlt: string; ariaLabel: string };
+    navItems: HeaderNavItem[];
+  }>({
+    brand: {
+      name: "Trijotech",
+      homeHref: "/",
+      logoSrc: "/brand/Trijotech_Complete_white.svg",
+      logoAlt: "Trijotech",
+      ariaLabel: "Trijotech home",
+    },
+    navItems: [],
+  });
+
+  useEffect(() => {
+    fetch("/api/navigation")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.navItems && data.navItems.length > 0) {
+          setNavData({ brand: data.brand || navData.brand, navItems: data.navItems });
+        }
+      })
+      .catch((err) => console.error("Failed to load nav data:", err));
+  }, []);
 
   useEffect(() => {
     const hero = document.querySelector<HTMLElement>(
@@ -157,8 +168,8 @@ export default function Header() {
     };
   }, [pathname]);
 
-  const { brand } = headerData;
-  const configuredNavItems = headerData.navItems as HeaderNavItem[];
+  const brand = navData.brand;
+  const configuredNavItems = navData.navItems;
   const servicesItem = configuredNavItems.find((item) => item.name === "Services");
   const navItems = servicesItem
     ? configuredNavItems.reduce<HeaderNavItem[]>((items, item) => {
@@ -182,7 +193,6 @@ export default function Header() {
       setOpenDropdownName(null);
       return;
     }
-
     openDropdown(item);
   }
 
@@ -336,18 +346,16 @@ export default function Header() {
                                         dropdownItem.href,
                                       )
                                     }
-                                    className={`group/item flex items-center justify-between gap-3 rounded-lg px-4 py-3 text-base font-semibold transition focus-visible:outline-none ${isSelected
-                                      ? "bg-white/12 text-white"
-                                      : "text-white/70 hover:bg-white/7 hover:text-white focus-visible:bg-white/7 focus-visible:text-white"
+                                    className={`group flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold transition ${isSelected
+                                      ? "border border-white/20 bg-white/12 text-white"
+                                      : "border border-transparent text-white/70 hover:border-white/10 hover:bg-white/6 hover:text-white"
                                       }`}
                                   >
-                                    <span className="min-w-0 truncate">
-                                      {dropdownItem.name}
-                                    </span>
+                                    <span>{dropdownItem.name}</span>
                                     <ChevronRight
-                                      className={`h-4 w-4 shrink-0 transition ${isSelected
+                                      className={`h-4 w-4 transition ${isSelected
                                         ? "translate-x-0.5 text-white"
-                                        : "text-white/25 group-hover/item:translate-x-0.5 group-hover/item:text-white"
+                                        : "text-white/35 group-hover:translate-x-0.5 group-hover:text-white/70"
                                         }`}
                                     />
                                   </Link>
@@ -355,59 +363,36 @@ export default function Header() {
                               })}
                             </div>
 
-                            <div className="flex flex-col p-5">
-                              <AnimatePresence mode="wait">
-                                {activeDropdownItem ? (
-                                  <motion.div
-                                    key={activeDropdownItem.href}
-                                    initial={{ opacity: 0, x: 10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -10 }}
-                                    transition={{ duration: 0.14, ease: "easeOut" }}
-                                    className="flex h-full flex-col"
-                                  >
-                                    <div
-                                      className="min-h-[8.25rem] overflow-hidden rounded-lg border border-white/10 bg-white/5 bg-cover bg-center shadow-[inset_0_0_20px_rgba(10,110,209,0.18)]"
-                                      style={
-                                        activeDropdownItem.hasImage &&
-                                          activeDropdownItem.imageUrl
-                                          ? {
-                                            backgroundImage: `url(${activeDropdownItem.imageUrl})`,
-                                          }
-                                          : undefined
-                                      }
-                                    >
-                                      {!activeDropdownItem.hasImage ||
-                                        !activeDropdownItem.imageUrl ? (
-                                        <div className="flex min-h-[8.25rem] items-center justify-center bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))]">
-                                          <span className="text-5xl font-bold text-white/20">
-                                            {activeDropdownItem.name.charAt(0)}
-                                          </span>
-                                        </div>
-                                      ) : null}
-                                    </div>
-
-                                    <div className="mt-2">
-                                      <p className="text-lg font-semibold text-white">
-                                        {activeDropdownItem.name}
-                                      </p>
-                                      <p className="mt-2 text-base leading-7 text-white/70">
-                                        {activeDropdownItem.description ||
-                                          item.description}
-                                      </p>
-                                    </div>
-
-                                    <Link
-                                      href={activeDropdownItem.href}
-                                      onClick={() => setOpenDropdownName(null)}
-                                      className="mt-auto inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/7 px-3 py-1.5 text-base font-semibold text-white/80 transition hover:border-white/40 hover:bg-white/10 hover:text-white"
-                                    >
-                                      Know More
-                                      <ChevronRight className="h-4 w-4" />
-                                    </Link>
-                                  </motion.div>
+                            <div className="flex flex-col justify-between p-6">
+                              <div>
+                                {activeDropdownItem?.hasImage &&
+                                  activeDropdownItem.imageUrl ? (
+                                  <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-lg border border-white/10 bg-[#171a2c]">
+                                    <Image
+                                      src={activeDropdownItem.imageUrl}
+                                      alt={activeDropdownItem.name}
+                                      fill
+                                      sizes="(max-width: 1024px) 100vw, 420px"
+                                      className="object-cover transition duration-300 hover:scale-105"
+                                    />
+                                  </div>
                                 ) : null}
-                              </AnimatePresence>
+                                <h3 className="text-lg font-bold text-white">
+                                  {activeDropdownItem?.name}
+                                </h3>
+                                <p className="mt-2 text-sm leading-relaxed text-white/70 whitespace-pre-line">
+                                  {activeDropdownItem?.description}
+                                </p>
+                              </div>
+
+                              <Link
+                                href={activeDropdownItem?.href || item.href}
+                                onClick={() => setOpenDropdownName(null)}
+                                className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-white transition hover:text-white/80"
+                              >
+                                Explore {activeDropdownItem?.name}
+                                <ChevronRight className="h-4 w-4" />
+                              </Link>
                             </div>
                           </div>
                         </motion.div>
@@ -425,10 +410,11 @@ export default function Header() {
             })}
           </nav>
 
-          <div className="site-header-actions hidden items-center justify-end gap-2 xl:flex">
+          <div className="flex items-center justify-end gap-2">
             <HeaderActionButton label="Search" onClick={openSearch}>
               <Search className="h-4.5 w-4.5" />
             </HeaderActionButton>
+
             <Link
               href="/admin/login"
               aria-label="Profile"
@@ -437,103 +423,74 @@ export default function Header() {
             >
               <UserCircle className="h-5 w-5" />
             </Link>
+
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/6 text-white transition hover:bg-white/10 xl:hidden"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMenuOpen}
+              onClick={() => setIsMenuOpen((current) => !current)}
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
-
-          <button
-            type="button"
-            className="site-menu-toggle inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/6 text-white transition hover:bg-white/10 xl:hidden"
-            aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-            aria-expanded={isMenuOpen}
-            onClick={() => setIsMenuOpen((current) => !current)}
-          >
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
         </div>
-
-        <div
-          aria-hidden
-          className={`pointer-events-none absolute inset-x-0 bottom-0 h-px transition-opacity duration-500 ${
-            isPastHero ? "opacity-100" : "opacity-0"
-          } bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),rgba(255,255,255,0.2),transparent)]`}
-        />
 
         <AnimatePresence>
           {isSearchOpen ? (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
-              className="absolute inset-x-0 top-0 z-60 border-b border-white/10 bg-[#050817]/98 backdrop-blur-xl"
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.16, ease: "easeOut" }}
+              className="border-t border-white/10 bg-[#070b1e]/98 px-4 py-3 backdrop-blur-xl"
             >
-              <div className="mx-auto grid h-18 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-2 sm:px-2 lg:px-6">
-                <Link
-                  href={brand.homeHref}
-                  className="flex w-fit items-center"
-                  aria-label={brand.ariaLabel}
-                  onClick={closeSearch}
-                >
-                  <span className="relative block">
-                    <span className="relative block h-14 w-36"><Image src="/brand/favicon.svg" alt="" width={48} height={48} priority className="absolute left-0 top-0 h-12 w-12 object-contain" /><span className="absolute left-[1.95rem] top-[2.3rem] whitespace-nowrap text-base font-medium uppercase leading-none tracking-[0.08em] text-white">Trijo<span className={isPastHero ? "text-[#F5A623]" : "text-white"}>tech</span></span></span>
-                  </span>
-                </Link>
-
-                <div className="mx-auto flex h-11 w-full max-w-2xl items-center gap-3 rounded-full border border-white/10 bg-white/7 px-4">
-                  <Search className="h-5 w-5 shrink-0 text-white/45" />
-                  <input
-                    type="search"
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Escape") {
-                        closeSearch();
-                      }
-                    }}
-                    autoFocus
-                    placeholder="Search Trijotech..."
-                    className="h-full min-w-0 flex-1 bg-transparent text-base text-white outline-none placeholder:text-white/35"
-                  />
-                </div>
-
+              <div className="mx-auto flex max-w-3xl items-center gap-2">
+                <Search className="h-4 w-4 text-white/45" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search solutions, services, or documentation..."
+                  className="w-full bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none"
+                />
                 <button
                   type="button"
                   aria-label="Close search"
-                  title="Close search"
                   onClick={closeSearch}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/6 text-white/80 transition hover:bg-white/10 hover:text-white"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-full text-white/60 hover:bg-white/10 hover:text-white"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             </motion.div>
           ) : null}
         </AnimatePresence>
 
-        <AnimatePresence initial={false}>
+        <AnimatePresence>
           {isMenuOpen ? (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="site-mobile-panel max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-white/10 bg-[#080b18] shadow-2xl shadow-black/40 xl:hidden"
+              className="overflow-hidden border-t border-white/10 bg-[#050817]/98 px-4 py-6 backdrop-blur-2xl xl:hidden"
             >
-              <div className="px-4 py-5">
-                <nav aria-label="Mobile navigation" className="space-y-1">
+              <div className="mx-auto max-w-2xl space-y-2">
+                <nav className="space-y-1">
                   {navItems.map((item) => {
                     const isActive = isNavItemActive(pathname, item);
                     const hasDropdown = hasDropdownItems(item);
+                    const isMobileDropdownOpen = openMobileDropdownName === item.name;
                     const parentNavigates = item.name !== "Solutions" && item.name !== "Industries" ? Boolean(item.href) : item.href === "/solutions";
-                    const isMobileDropdownOpen =
-                      openMobileDropdownName === item.name;
 
                     if (hasDropdown) {
                       return (
-                        <div key={item.name}>
-                          <div className={`flex w-full items-center justify-between rounded-lg text-sm font-semibold transition ${isActive
-                              ? "bg-white/12 text-white"
-                              : "text-white/75 hover:bg-white/[0.07] hover:text-white"
-                              }`}>
+                        <div key={item.name} className="space-y-1">
+                          <div className={`flex items-center justify-between rounded-lg text-sm font-semibold transition ${isActive
+                            ? "bg-white/12 text-white"
+                            : "text-white/75 hover:bg-white/[0.07] hover:text-white"
+                            }`}>
                             {parentNavigates ? (
                               <Link href={item.href} onClick={() => setIsMenuOpen(false)} className="flex-1 px-4 py-3">{item.name}</Link>
                             ) : (

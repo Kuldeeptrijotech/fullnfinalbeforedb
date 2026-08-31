@@ -2,10 +2,11 @@ import Image from "next/image";
 import OptimizedVideo from "@/components/ui/OptimizedVideo";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getOtherSolutions } from "@/lib/solutions-data";
+import { getSolutionsPageData } from "@/lib/services/solutions.service";
 
-export default function OtherSolutions({ currentSlug }: { currentSlug: string }) {
-  const others = getOtherSolutions(currentSlug);
+export default async function OtherSolutions({ currentSlug }: { currentSlug: string }) {
+  const allSolutions = await getSolutionsPageData();
+  const others = allSolutions.filter((s) => s.slug !== currentSlug);
   if (others.length === 0) return null;
 
   return (
@@ -22,7 +23,7 @@ export default function OtherSolutions({ currentSlug }: { currentSlug: string })
               className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_6px_24px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-slate-400 hover:shadow-[0_16px_36px_rgba(0,0,0,0.12)]"
             >
               <Link href={solution.href} className="no-underline relative block aspect-[16/10] w-full shrink-0 overflow-hidden bg-slate-900">
-                {solution.cardImage.toLowerCase().match(/\.(mp4|webm)$/) !== null ? (
+                {solution.cardImage && solution.cardImage.toLowerCase().match(/\.(mp4|webm)$/) !== null ? (
                   <OptimizedVideo
                     src={solution.cardImage}
                     alt={solution.imageAlt}
@@ -30,7 +31,7 @@ export default function OtherSolutions({ currentSlug }: { currentSlug: string })
                   />
                 ) : (
                   <Image
-                    src={solution.cardImage}
+                    src={solution.cardImage || "/assets/heroes/products-blue.png"}
                     alt={solution.imageAlt}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"

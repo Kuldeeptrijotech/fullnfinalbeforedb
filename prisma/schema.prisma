@@ -25,6 +25,10 @@ enum BlogStatus {
   published
 }
 
+// ----------------------------------------------------
+// AUTH & ADMIN
+// ----------------------------------------------------
+
 model User {
   id                  String     @id @default(uuid())
   email               String     @unique
@@ -74,6 +78,10 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+// ----------------------------------------------------
+// CORE PAGES & CONTENT
+// ----------------------------------------------------
 
 model Page {
   id              String        @id @default(uuid())
@@ -142,6 +150,10 @@ model SiteSetting {
   @@map("site_settings")
 }
 
+// ----------------------------------------------------
+// BLOGS & MEDIA
+// ----------------------------------------------------
+
 model BlogPost {
   id                 String     @id @default(uuid())
   title              String
@@ -195,6 +207,10 @@ model MediaAsset {
   @@map("media_assets")
 }
 
+// ----------------------------------------------------
+// FORM SUBMISSIONS
+// ----------------------------------------------------
+
 model ContactSubmission {
   id          String     @id @default(uuid())
   name        String
@@ -240,6 +256,10 @@ model CareerSubmission {
   @@map("career_submissions")
 }
 
+// ----------------------------------------------------
+// CHATBOT
+// ----------------------------------------------------
+
 model ChatbotKnowledgeEntry {
   id        String   @id @default(uuid())
   title     String
@@ -272,7 +292,7 @@ model ChatbotSetting {
 }
 
 // ----------------------------------------------------
-// DEDICATED RELATIONAL MODELS FOR HOMEPAGE & SECTIONS
+// HOMEPAGE RELATIONAL MODELS
 // ----------------------------------------------------
 
 model HeroSlide {
@@ -442,4 +462,276 @@ model HomepageSectionConfig {
   updatedAt   DateTime @updatedAt
 
   @@map("homepage_section_configs")
+}
+
+// ----------------------------------------------------
+// GLOBAL NAVIGATION & HEADER/FOOTER MODELS
+// ----------------------------------------------------
+
+model HeaderNavItem {
+  id          String               @id @default(uuid())
+  name        String               @unique
+  type        String               @default("link") // "link" | "dropdown"
+  href        String
+  description String               @db.Text
+  sortOrder   Int                  @default(0)
+  items       HeaderDropdownItem[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@map("header_navigation_items")
+}
+
+model HeaderDropdownItem {
+  id          String        @id @default(uuid())
+  navItemId   String
+  name        String
+  href        String
+  description String        @db.Text
+  hasImage    Boolean       @default(false)
+  imageUrl    String        @default("")
+  sortOrder   Int           @default(0)
+  navItem     HeaderNavItem @relation(fields: [navItemId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([navItemId])
+  @@map("header_dropdown_items")
+}
+
+model SiteConfigSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Json
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("site_config_settings")
+}
+
+// ----------------------------------------------------
+// ABOUT US MODELS
+// ----------------------------------------------------
+
+model AboutUsPageConfig {
+  id                   String   @id @default("default")
+  heroTitle            String   @default("Technology shaped around real outcomes")
+  heroSubtitle         String   @default("We help enterprises modernize SAP landscapes, integrate critical data, and turn technology investments into sustainable business advantage.") @db.Text
+  heroImage            String   @default("/assets/about/trijotech-team-collaboration-blue.png")
+  whoWeAreTitle        String   @default("Deep expertise, close collaboration")
+  whoWeAreDescription1 String   @db.Text
+  whoWeAreDescription2 String   @db.Text
+  expertiseNote        String   @default("Expertise shaped around measurable business value")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("about_page_configs")
+}
+
+model AboutUsPurpose {
+  id        String   @id @default(uuid())
+  label     String
+  title     String
+  text      String   @db.Text
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("about_purposes")
+}
+
+model AboutUsValue {
+  id          String   @id @default(uuid())
+  number      String
+  title       String
+  description String   @db.Text
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("about_values")
+}
+
+model LeadershipMember {
+  id          String   @id @default(uuid())
+  name        String
+  role        String
+  image       String   @default("")
+  description String   @db.Text
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("leadership_members")
+}
+
+// ----------------------------------------------------
+// SERVICES DETAILED MODELS
+// ----------------------------------------------------
+
+model ServiceDetail {
+  id           String   @id @default(uuid())
+  slug         String   @unique
+  title        String
+  subtitle     String   @default("")
+  number       String   @default("01")
+  description  String   @db.Text
+  heroImage    String   @default("/assets/heroes/services-blue.png")
+  bannerImage  String   @default("")
+  enables      String[] @default([])
+  deliverables String[] @default([])
+  benefits     String[] @default([])
+  tools        String[] @default([])
+  sortOrder    Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("service_details")
+}
+
+// ----------------------------------------------------
+// SOLUTIONS DETAILED MODELS
+// ----------------------------------------------------
+
+model SolutionDetail {
+  id               String   @id @default(uuid())
+  slug             String   @unique
+  title            String
+  eyebrow          String   @default("")
+  subtitle         String   @default("")
+  description      String   @db.Text
+  shortDescription String   @db.Text
+  image            String   @default("")
+  imageAlt         String   @default("")
+  heroImage        String   @default("/assets/heroes/products-blue.png")
+  cardImage        String   @default("")
+  showOnHome       Boolean  @default(true)
+  overviewTitle    String   @default("Overview")
+  overview         String   @db.Text
+  highlights       String[] @default([])
+  features         String[] @default([])
+  featureCards     Json?
+  sections         Json?
+  benefits         String[] @default([])
+  outcomesTitle    String   @default("Business Outcomes")
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("solution_details")
+}
+
+// ----------------------------------------------------
+// INDUSTRIES DETAILED MODELS
+// ----------------------------------------------------
+
+model IndustryDetail {
+  id               String   @id @default(uuid())
+  slug             String   @unique
+  title            String
+  subtitle         String   @default("")
+  shortDescription String   @db.Text
+  description      String   @db.Text
+  heroImage        String   @default("")
+  services         String[] @default([])
+  benefits         String[] @default([])
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("industry_details")
+}
+
+// ----------------------------------------------------
+// CAREERS MODELS
+// ----------------------------------------------------
+
+model CareerPageConfig {
+  id              String   @id @default("default")
+  heroTitle       String   @default("Build what matters in enterprise technology")
+  heroSubtitle    String   @default("Join a team of SAP specialists, data engineers, and problem-solvers who deliver technology that creates lasting value for global enterprises.") @db.Text
+  heroImage       String   @default("/assets/heroes/careers-generated-v2.png")
+  cultureTitle    String   @default("Life at Trijotech")
+  cultureSubtitle String   @default("A workplace shaped by autonomy, continuous learning, and pride in delivery.")
+  benefits        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("career_page_configs")
+}
+
+model CareerCulturePillar {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  icon        String   @default("Users")
+  image       String   @default("")
+  imageAlt    String   @default("")
+  tags        String[] @default([])
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("career_culture_pillars")
+}
+
+// ----------------------------------------------------
+// CONTACT US MODELS
+// ----------------------------------------------------
+
+model ContactPageConfig {
+  id           String   @id @default("default")
+  heroTitle    String   @default("Let's talk about your next milestone")
+  heroSubtitle String   @default("Whether you need SAP implementation, managed support, cloud development, or data integration, our team is ready to help.") @db.Text
+  heroImage    String   @default("/assets/heroes/contact-generated-v2.png")
+  salesEmail   String   @default("sales@trijotech.com")
+  careersEmail String   @default("hr@trijotech.com")
+  phones       Json?
+  addresses    Json?
+  inquiryTypes String[] @default(["SAP Consulting", "Support & AMS", "BTP Application Development", "Data & AI Solutions", "General Inquiry"])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("contact_page_configs")
+}
+
+// ----------------------------------------------------
+// CASE STUDIES
+// ----------------------------------------------------
+
+model CaseStudy {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  client      String
+  industry    String
+  challenge   String   @db.Text
+  solution    String   @db.Text
+  outcome     String   @db.Text
+  metrics     String[] @default([])
+  heroImage   String   @default("/assets/case-studies/financial-analysis-team.png")
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("case_studies")
+}
+
+// ----------------------------------------------------
+// PRIVACY POLICY
+// ----------------------------------------------------
+
+model PrivacyPolicyPage {
+  id           String   @id @default("default")
+  title        String   @default("Privacy Policy")
+  lastUpdated  String   @default("August 2026")
+  introduction String   @db.Text
+  sections     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("privacy_policy_pages")
 }

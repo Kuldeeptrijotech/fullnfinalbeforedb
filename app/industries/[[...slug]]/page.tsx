@@ -11,18 +11,16 @@ import {
   DatabaseZap,
   Layers3,
 } from "lucide-react";
-import { getIndustry, industries } from "@/lib/industries-data";
+import { getIndustryBySlug } from "@/lib/services/industries.service";
 
 type Props = { params: Promise<{ slug?: string[] }> };
 
-export function generateStaticParams() {
-  return industries.map((industry) => ({ slug: [industry.slug] }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = (await params).slug?.[0];
   if (!slug) return {};
-  const industry = getIndustry(slug);
+  const industry = await getIndustryBySlug(slug);
   if (!industry) return {};
   return {
     title: `${industry.title} Solutions | Trijotech`,
@@ -40,9 +38,8 @@ const cardTones = [
 ];
 
 export default async function IndustryDetailPage({ params }: Props) {
-  const rawSlug = (await params).slug?.[0];
-  if (!rawSlug) notFound();
-  const industry = getIndustry(rawSlug);
+  const rawSlug = (await params).slug?.[0] || "retail-supply-chain";
+  const industry = await getIndustryBySlug(rawSlug);
   if (!industry) notFound();
 
   return (
@@ -60,7 +57,7 @@ export default async function IndustryDetailPage({ params }: Props) {
             sizes="100vw"
             className="h-full w-full object-cover object-center brightness-[0.88] contrast-[1.05]"
           />
-          {/* Subtle soft gradient on left for text legibility while keeping image vibrant & visible (matching solution detail) */}
+          {/* Subtle soft gradient on left for text legibility while keeping image vibrant & visible */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#030713]/80 via-[#030713]/35 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#030713] to-transparent" />
         </div>
@@ -211,14 +208,10 @@ export default async function IndustryDetailPage({ params }: Props) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[1]" />
               <div className="absolute bottom-0 p-6 sm:p-8 z-10">
-                <p
-                  className="industry-outcomes-kicker text-xs font-bold uppercase tracking-[0.2em] text-white"
-                >
+                <p className="industry-outcomes-kicker text-xs font-bold uppercase tracking-[0.2em] text-white">
                   Built for lasting value
                 </p>
-                <p
-                  className="mt-2 text-xl font-bold text-white leading-snug sm:text-2xl"
-                >
+                <p className="mt-2 text-xl font-bold text-white leading-snug sm:text-2xl">
                   Better data. Clearer decisions. Stronger operations.
                 </p>
               </div>
@@ -233,9 +226,7 @@ export default async function IndustryDetailPage({ params }: Props) {
                   key={benefit}
                   className="industry-detail-card flex min-w-0 items-start gap-4 overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 p-6 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md"
                 >
-                  <span
-                    className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-900 shadow-sm"
-                  >
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-900 shadow-sm">
                     <Check className="h-4.5 w-4.5 stroke-[3] text-slate-900" />
                   </span>
                   <div>
@@ -251,4 +242,3 @@ export default async function IndustryDetailPage({ params }: Props) {
     </main>
   );
 }
-

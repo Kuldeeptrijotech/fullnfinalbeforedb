@@ -66,7 +66,16 @@ const studies: CaseStudy[] = [
   },
 ];
 
-export default function CaseStudiesPage() {
+import type { CaseStudyData } from "@/lib/services/case-studies.service";
+
+export default function CaseStudiesPage({ dbStudies }: { dbStudies?: CaseStudyData[] }) {
+  const displayStudies = dbStudies && dbStudies.length > 0
+    ? dbStudies.map((cs, i) => ({
+        title: cs.title,
+        description: `${cs.challenge} ${cs.solution} Outcome: ${cs.outcome}`,
+        images: studies[i % studies.length]?.images || studies[0].images,
+      }))
+    : studies;
   return (
     <main className="public-alternating-page overflow-hidden bg-[#121927] text-white">
       {/* ──── Hero ────────────────────────────────────────────────────────────── */}
@@ -131,7 +140,7 @@ export default function CaseStudiesPage() {
 
       {/* ──── Case Studies ────────────────────────────────────────────── */}
       <div id="case-studies" className="divide-y divide-slate-200">
-        {studies.map((study, index) => {
+        {displayStudies.map((study, index) => {
           const isWhite = index % 2 === 0;
           return (
             <section

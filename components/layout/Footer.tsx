@@ -1,10 +1,13 @@
+"use client";
+
 import Container from "@/components/ui/Container";
-import { siteConfig } from "@/lib/site-data";
 import { FaLinkedinIn, FaYoutube, FaXTwitter } from "react-icons/fa6";
 import type { IconType } from "react-icons";
 import { Mail, MapPin, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import type { FooterData } from "@/lib/services/navigation.service";
 
 const socialIcons: Record<string, IconType> = {
   YouTube: FaYoutube,
@@ -12,9 +15,78 @@ const socialIcons: Record<string, IconType> = {
   X: FaXTwitter,
 };
 
-export default function Footer() {
-  const { footer } = siteConfig;
+const defaultFooterData: FooterData = {
+  summary: "Trijotech helps organizations modernize SAP landscapes, data platforms, and cloud applications with practical engineering teams.",
+  columns: [
+    {
+      title: "Useful Links",
+      links: [
+        { label: "Home", href: "/" },
+        { label: "Blogs", href: "/blogs" },
+        { label: "Case Studies", href: "/case-studies" },
+        { label: "Videos", href: "/videos" },
+      ],
+    },
+    {
+      title: "Company",
+      links: [
+        { label: "Services", href: "/services" },
+        { label: "Solutions", href: "/solutions" },
+        { label: "Industries", href: "/industries/retail-supply-chain" },
+        { label: "Careers", href: "/careers" },
+        { label: "Contact", href: "/contact" },
+      ],
+    },
+    {
+      title: "Compliance",
+      links: [{ label: "Privacy Policy", href: "/privacy-policy" }],
+    },
+  ],
+  contact: {
+    email: "sales@trijotech.com",
+    phones: [
+      { label: "+91 120-3506433", href: "tel:+911203506433" },
+      { label: "+91 7982531976", href: "tel:+917982531976" },
+    ],
+    addresses: [
+      {
+        title: "Corporate Address",
+        lines: ["C56A, Infinity Technopark, 501, 16, C Block,", "Phase 2, Sector 62, Noida,", "Uttar Pradesh 201309"],
+      },
+      {
+        title: "Registered Address",
+        lines: ["House No. 74, 2nd Floor, Block B,", "Pocket 6, Sector 7, Rohini,", "North West Delhi - 110085"],
+      },
+    ],
+  },
+  badges: [
+    { label: "Trijotech Software Consulting Pvt Ltd", src: "/static/footer/trijotech-footer-logo.png", width: 500, height: 289 },
+    { label: "SAP Partner", src: "/static/footer/sap-partner-logo.png", width: 130, height: 65 },
+    { label: "ISO certifications", src: "/static/footer/iso-certifications.png", width: 135, height: 65 },
+  ],
+  socialLinks: [
+    { label: "YouTube", href: "https://www.youtube.com/@trijotech" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/company/trijotech/" },
+    { label: "X", href: "https://x.com/trijotech" },
+  ],
+};
+
+export default function Footer({ initialFooter }: { initialFooter?: FooterData }) {
+  const [footer, setFooter] = useState<FooterData>(initialFooter || defaultFooterData);
   const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    if (!initialFooter) {
+      fetch("/api/navigation")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.footer) {
+            setFooter(data.footer);
+          }
+        })
+        .catch((err) => console.error("Failed to load footer data:", err));
+    }
+  }, [initialFooter]);
 
   return (
     <footer className="zip-footer bg-[#050817] font-sans text-white">

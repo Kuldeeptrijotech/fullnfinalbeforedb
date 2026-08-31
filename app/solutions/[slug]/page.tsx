@@ -6,7 +6,7 @@ import ProfitabilityProPage from "@/components/solutions/pages/ProfitabilityProP
 import {
   getAllSolutionSlugs,
   getSolutionBySlug,
-} from "@/lib/solutions-data";
+} from "@/lib/services/solutions.service";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -19,13 +19,11 @@ const solutionPages = {
   "profitability-pro": ProfitabilityProPage,
 } as const;
 
-export function generateStaticParams() {
-  return getAllSolutionSlugs().map((slug) => ({ slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const solution = getSolutionBySlug(slug);
+  const solution = await getSolutionBySlug(slug);
   if (!solution) {
     return { title: "Solution not found | Trijotech" };
   }
@@ -37,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function SolutionDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const solution = getSolutionBySlug(slug);
+  const solution = await getSolutionBySlug(slug);
   const Page = solutionPages[slug as keyof typeof solutionPages];
 
   if (!solution || !Page) {

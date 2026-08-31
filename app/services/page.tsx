@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import ServiceBanners from "@/components/services/ServiceBanners";
+import { getServicesPageData } from "@/lib/services/services.service";
 
 export const metadata: Metadata = {
   title: "Services | Trijotech",
@@ -10,18 +11,21 @@ export const metadata: Metadata = {
     "End-to-end SAP implementation, support, integration, cloud, analytics, and AI services.",
 };
 
-export default function ServicesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ServicesPage() {
+  const data = await getServicesPageData();
+  const { hero, services } = data;
+
   return (
     <main className="services-page-root font-sans overflow-hidden bg-[#030713] text-white">
-      {/* ──── Hero Section (Preserved & Untouched) ──── */}
+      {/* ──── Hero Section ──── */}
       <section className="relative isolate min-h-[calc(100svh-4.5rem)] overflow-hidden bg-[#050817] pt-24 sm:pt-28 lg:pt-24 pb-12">
-        {/* Mesh + hexgrid background */}
         <div aria-hidden className="absolute inset-0 -z-40 tri-mesh" />
         <div aria-hidden className="absolute inset-0 -z-30 tri-hex-grid opacity-55" />
 
-        {/* Hero image */}
         <Image
-          src="/assets/heroes/services-blue.png"
+          src={hero.heroImage}
           alt="Trijotech SAP Services"
           fill
           priority
@@ -30,7 +34,6 @@ export default function ServicesPage() {
           className="absolute inset-0 -z-20 object-cover object-center opacity-90"
         />
 
-        {/* Gradient overlays — balanced for text readability and clear background visibility */}
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(3,7,19,0.92)_0%,rgba(3,7,19,0.70)_40%,rgba(3,7,19,0.20)_75%,transparent_100%)]"
@@ -40,18 +43,14 @@ export default function ServicesPage() {
           className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(3,7,19,0.30)_0%,transparent_30%,transparent_70%,rgba(3,7,19,0.60)_100%)]"
         />
 
-        {/* Content */}
         <div className="mx-auto flex min-h-[calc(100svh-9.5rem)] w-full max-w-7xl items-center px-5 py-10 sm:px-8 sm:py-12 lg:px-12">
           <div className="max-w-3xl">
-
             <h1 className="max-w-3xl text-2xl font-bold leading-[1.15] tracking-tight text-white sm:text-4xl lg:text-5xl">
-              SAP solutions designed to transform your business
+              {hero.title}
             </h1>
 
             <p className="mt-6 max-w-2xl text-base font-normal leading-[1.7] text-white/80 sm:text-lg">
-              Trijotech provides end-to-end SAP services across implementation,
-              support, integration, analytics, cloud, and intelligent
-              technologies.
+              {hero.description}
             </p>
 
             <div className="mt-9 flex flex-wrap gap-4 relative z-10">
@@ -71,15 +70,14 @@ export default function ServicesPage() {
           </div>
         </div>
 
-        {/* Clean bottom separator */}
         <div
           aria-hidden
           className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-[#030713]"
         />
       </section>
 
-      {/* ──── Services Full-Width Alternating Banners ──── */}
-      <ServiceBanners />
+      {/* ──── Services Full-Width Alternating Banners from PostgreSQL ──── */}
+      <ServiceBanners services={services} />
     </main>
   );
 }

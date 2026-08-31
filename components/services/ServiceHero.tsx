@@ -3,43 +3,25 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import Container from "@/components/ui/Container";
-import { navHeroImages } from "@/lib/nav-hero-images";
 
 type ServiceHeroProps = {
-  /** Optional Eyebrow badge text */
   eyebrow?: string;
-  /** Hero Title */
   title?: string;
-  /** Hero Subtitle / Lead */
   subtitle?: string;
-  /** Hero Description */
   description?: string;
-  /** Primary Action Button */
   primaryCta?: { label: string; href: string };
-  /** Secondary Action Button */
   secondaryCta?: { label: string; href: string };
-  /** Key metrics / capability pills */
   metrics?: { value: string; label: string }[];
-  /** Optional custom heading component */
   heading?: ReactNode;
-  /** Optional custom scene (unused in static mode) */
   scene?: ReactNode;
-  /** Hero background gradient classes */
   bgClass?: string;
-  /** Colour the hero melts into at the bottom */
   fadeTo?: string;
-  /** Glow blob colours */
   glow?: [string, string];
+  heroImage?: string;
 };
 
-/**
- * Service Hero Section:
- * Clean, modern static enterprise hero header.
- * High-readability typography with pure white & dark slate background.
- */
 export default function ServiceHero({
   eyebrow = "SAP Enterprise Services",
   title = "End-to-End SAP Transformation & Consulting",
@@ -54,12 +36,10 @@ export default function ServiceHero({
   ],
   heading,
   bgClass = "bg-[#050817]",
+  heroImage = "/assets/heroes/services-blue.png",
 }: ServiceHeroProps) {
-  const pathname = usePathname();
-  const heroImage = navHeroImages[pathname];
   return (
     <section className={`relative isolate flex min-h-[75vh] w-full flex-col justify-center overflow-hidden ${bgClass} pb-16 pt-32 sm:pt-36 lg:min-h-[640px] lg:py-24`}>
-      {/* Full width & full height image backdrop */}
       {heroImage && (
         <div aria-hidden className="absolute inset-0 -z-20 overflow-hidden">
           <Image
@@ -71,7 +51,6 @@ export default function ServiceHero({
             sizes="100vw"
             className="h-full w-full object-cover object-center brightness-[0.88] contrast-[1.05]"
           />
-          {/* Subtle soft gradient on left for text legibility while keeping image vibrant & visible */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#030713]/80 via-[#030713]/35 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#030713] to-transparent" />
         </div>
@@ -82,26 +61,22 @@ export default function ServiceHero({
           <div className="max-w-3xl">{heading}</div>
         ) : (
           <div className="flex max-w-4xl flex-col items-start text-left">
-            {/* Title */}
             <h1 className="text-3xl font-extrabold leading-[1.15] tracking-tight text-white drop-shadow-md sm:text-4xl lg:text-5xl">
               {title}
             </h1>
 
-            {/* Subtitle */}
             {subtitle && (
               <p className="mt-5 text-lg font-semibold leading-relaxed text-white drop-shadow-md sm:text-xl">
                 {subtitle}
               </p>
             )}
 
-            {/* Description */}
             {description && (
               <p className="mt-4 max-w-2xl text-base font-normal leading-[1.7] text-white/90 drop-shadow sm:text-lg">
                 {description}
               </p>
             )}
 
-            {/* Action buttons */}
             <div className="mt-9 flex flex-wrap items-center gap-4 relative z-10">
               {primaryCta && (
                 <Link
@@ -124,10 +99,7 @@ export default function ServiceHero({
         )}
       </Container>
 
-      {/* Clean bottom border */}
       <div aria-hidden className="absolute inset-x-0 bottom-0 z-30 h-px bg-white/15" />
     </section>
   );
 }
-
-
