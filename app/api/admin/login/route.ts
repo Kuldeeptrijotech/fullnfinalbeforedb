@@ -1,50 +1,57 @@
 import { NextResponse } from "next/server";
-import { createSessionToken, passwordMatches, SESSION_COOKIE, sessionCookieOptions } from "@/app/lib/admin-auth";
+import { SESSION_COOKIE, sessionCookieOptions } from "@/app/lib/admin-auth";
+import { authenticateAdmin } from "@/app/lib/services/user.service";
+import { logAuditEvent } from "@/app/lib/services/audit.service";
 
-const attempts = new Map<string, { count: number; resetAt: number }>();
-const MAX_TRACKED_CLIENTS = 10_000;
-
-function pruneAttempts(now: number) {
-  if (attempts.size < MAX_TRACKED_CLIENTS) return;
-  attempts.forEach((record, address) => {
-    if (record.resetAt <= now) attempts.delete(address);
-  });
-  while (attempts.size >= MAX_TRACKED_CLIENTS) {
-    const oldest = attempts.keys().next().value;
-    if (oldest === undefined) break;
-    attempts.delete(oldest);
-  }
-}
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const address = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  const now = Date.now();
-  const record = attempts.get(address);
-  if (record && record.resetAt > now && record.count >= 5) {
-    return NextResponse.json({ error: "Too many sign-in attempts. Try again in 15 minutes." }, { status: 429 });
-  }
+  const address = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
+  const userAgent = request.headers.get("user-agent") || "unknown";
 
   let password = "";
   try {
     const body = (await request.json()) as { password?: unknown };
     password = typeof body.password === "string" ? body.password : "";
   } catch {
-    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
   }
 
-  if (!process.env.ADMIN_PASSWORD || !process.env.ADMIN_SESSION_SECRET) {
-    return NextResponse.json({ error: "Admin credentials are not configured on the server." }, { status: 503 });
+  if (!password.trim()) {
+    return NextResponse.json({ error: "Password is required." }, { status: 400 });
   }
 
-  if (!passwordMatches(password)) {
-    pruneAttempts(now);
-    const next = record && record.resetAt > now ? { ...record, count: record.count + 1 } : { count: 1, resetAt: now + 15 * 60 * 1000 };
-    attempts.set(address, next);
-    return NextResponse.json({ error: "Incorrect password." }, { status: 401 });
+  const result = await authenticateAdmin(password, address, userAgent);
+
+  if (!result.success) {
+    await logAuditEvent({
+      action: "ADMIN_LOGIN_FAILED",
+      entityType: "User",
+      metadata: { reason: result.error },
+      ipAddress: address,
+    });
+    return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
-  attempts.delete(address);
-  const response = NextResponse.json({ success: true });
-  response.cookies.set(SESSION_COOKIE, createSessionToken(), sessionCookieOptions);
+  await logAuditEvent({
+    userId: result.user.id,
+    action: "ADMIN_LOGIN_SUCCESS",
+    entityType: "User",
+    entityId: result.user.id,
+    metadata: { email: result.user.email, role: result.user.role },
+    ipAddress: address,
+  });
+
+  const response = NextResponse.json({
+    success: true,
+    user: {
+      id: result.user.id,
+      email: result.user.email,
+      name: result.user.name,
+      role: result.user.role,
+    },
+  });
+
+  response.cookies.set(SESSION_COOKIE, result.sessionToken, sessionCookieOptions);
   return response;
 }

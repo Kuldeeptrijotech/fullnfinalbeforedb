@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import DeferredChatbot from "./chatbot/DeferredChatbot";
+import ScrollReveal from "./ScrollReveal";
 
 export default function PublicChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -12,13 +13,11 @@ export default function PublicChrome({ children }: { children: React.ReactNode }
     "/services",
     "/solutions",
     "/insights",
-    "/corporate",
   ].includes(pathname.toLowerCase());
   const usesStandaloneTailwind =
     pathname === "/services" ||
     pathname === "/solutions" ||
     pathname === "/insights" ||
-    pathname === "/corporate" ||
     pathname.startsWith("/industries/") ||
     pathname === "/blogs" ||
     pathname === "/videos" ||
@@ -31,11 +30,12 @@ export default function PublicChrome({ children }: { children: React.ReactNode }
     pathname.startsWith("/solutions/");
   return (
     <>
+      <ScrollReveal />
       <Header />
-      {pathname === "/" ? children : usesStandaloneTailwind || usesModernDetailTheme ? (
-        <div className={`font-sans ${isLandingPage ? "site-landing-theme" : "site-subpage-theme"}`}>{children}</div>
+      {pathname === "/" ? <div data-scroll-reveal-root>{children}</div> : usesStandaloneTailwind || usesModernDetailTheme ? (
+        <div data-scroll-reveal-root className={`font-sans ${isLandingPage ? "site-landing-theme" : "site-subpage-theme"}`}>{children}</div>
       ) : (
-        <div className={`zip-inner-theme font-sans ${isLandingPage ? "site-landing-theme" : "site-subpage-theme"}`}>{children}</div>
+        <div data-scroll-reveal-root className={`zip-inner-theme font-sans ${isLandingPage ? "site-landing-theme" : "site-subpage-theme"}`}>{children}</div>
       )}
       <Footer />
       <DeferredChatbot />

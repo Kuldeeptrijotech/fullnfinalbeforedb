@@ -2,9 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ChatHistoryMessage, ChatResponse, ChatbotSettings } from "@/app/types/chatbot";
+import { MessageCircle, RotateCcw, Send, X } from "lucide-react";
 
 type UiMessage = ChatHistoryMessage & { id: string; error?: boolean; sources?: ChatResponse["sources"] };
-const welcome: UiMessage = { id: "welcome", role: "assistant", content: "Hello! I’m the Trijotech AI assistant. I’m here to help with our services, SAP topics, technology questions, careers, and getting in touch. What would you like to explore?" };
+type VisitorDetails = { firstName: string; lastName: string; email: string; mobile: string; address: string; country: string; queryType: string };
+const emptyVisitor: VisitorDetails = { firstName: "", lastName: "", email: "", mobile: "", address: "", country: "", queryType: "" };
+const welcome: UiMessage = { id: "welcome", role: "assistant", content: "Hello! I am the Trijotech AI assistant. I am here to help with our services, SAP topics, technology questions, careers, and getting in touch. What would you like to explore?" };
 const conversation = () => typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `chat-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const newConversation = (welcomeMessage = welcome.content): { id: string; messages: UiMessage[] } => ({ id: conversation(), messages: [{ ...welcome, content: welcomeMessage }] });
 
@@ -19,6 +22,7 @@ function SafeText({ text }: { text: string }) {
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false); const [state, setState] = useState<{ id: string; messages: UiMessage[] } | null>(null); const [input, setInput] = useState(""); const [loading, setLoading] = useState(false); const [unread, setUnread] = useState(0);
+  const [visitor, setVisitor] = useState<VisitorDetails>(emptyVisitor); const [started, setStarted] = useState(false);
   const [settings, setSettings] = useState<Pick<ChatbotSettings, "enabled" | "assistantName" | "welcomeMessage" | "suggestedQuestions" | "contactButton" | "maximumMessageLength"> | null>(null); const [suggestions, setSuggestions] = useState<string[]>([]);
   const inputRef = useRef<HTMLTextAreaElement>(null); const endRef = useRef<HTMLDivElement>(null); const abortRef = useRef<AbortController | null>(null); const lastFailed = useRef<string>("");
   const chatRef = useRef<HTMLDivElement>(null);
@@ -51,7 +55,7 @@ export default function Chatbot() {
     void hydrate();
     return () => { active = false; };
   }, []);
-  useEffect(() => { if (open) { setUnread(0); requestAnimationFrame(() => inputRef.current?.focus()); void fetch("/api/chat/analytics", { method: "POST" }); } }, [open]);
+  useEffect(() => { if (open) { setUnread(0); if (started) requestAnimationFrame(() => inputRef.current?.focus()); void fetch("/api/chat/analytics", { method: "POST" }); } }, [open, started]);
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [state?.messages, loading]);
@@ -84,15 +88,53 @@ export default function Chatbot() {
     finally { if (abortRef.current === controller) abortRef.current = null; setLoading(false); }
   }
   function clear() { abortRef.current?.abort(); setState(newConversation(settings?.welcomeMessage)); setSuggestions(settings?.suggestedQuestions || []); setInput(""); setLoading(false); }
+  function updateVisitor(field: keyof VisitorDetails, value: string) { setVisitor((current) => ({ ...current, [field]: value })); }
+  function startChat(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setVisitor((current) => Object.fromEntries(Object.entries(current).map(([key, value]) => [key, value.trim()])) as VisitorDetails);
+    setStarted(true);
+    requestAnimationFrame(() => inputRef.current?.focus());
+  }
   if (!state || !settings?.enabled) return null;
-  return <div ref={chatRef} className={`fixed bottom-6 right-6 z-[60] font-[Arial,Helvetica,sans-serif] max-[520px]:bottom-3 max-[520px]:right-3 [&_.trijo-chat-launcher]:relative [&_.trijo-chat-launcher]:grid [&_.trijo-chat-launcher]:h-[58px] [&_.trijo-chat-launcher]:w-[58px] [&_.trijo-chat-launcher]:cursor-pointer [&_.trijo-chat-launcher]:place-items-center [&_.trijo-chat-launcher]:rounded-full [&_.trijo-chat-launcher]:border [&_.trijo-chat-launcher]:border-cyan-300/35 [&_.trijo-chat-launcher]:bg-[linear-gradient(145deg,#111827,#071827_62%,#0891b2)] [&_.trijo-chat-launcher]:text-cyan-100 [&_.trijo-chat-launcher]:shadow-[0_16px_38px_rgba(3,7,19,.38),0_0_0_5px_rgba(34,211,238,.08)] [&_.trijo-chat-launcher]:transition [&_.trijo-chat-window]:absolute [&_.trijo-chat-window]:bottom-[74px] [&_.trijo-chat-window]:right-0 [&_.trijo-chat-window]:flex [&_.trijo-chat-window]:h-[min(440px,calc(100vh-180px))] [&_.trijo-chat-window]:w-[min(390px,calc(100vw-32px))] [&_.trijo-chat-window]:flex-col [&_.trijo-chat-window]:overflow-hidden [&_.trijo-chat-window]:rounded-[20px] [&_.trijo-chat-window]:border [&_.trijo-chat-window]:border-white/10 [&_.trijo-chat-window]:bg-[#0b1020] [&_.trijo-chat-window]:text-white [&_.trijo-chat-window]:shadow-[0_28px_80px_rgba(3,7,19,.56)] [&_.trijo-chat-window>header]:flex [&_.trijo-chat-window>header]:min-h-[72px] [&_.trijo-chat-window>header]:items-center [&_.trijo-chat-window>header]:gap-[10px] [&_.trijo-chat-window>header]:border-b [&_.trijo-chat-window>header]:border-white/10 [&_.trijo-chat-window>header]:bg-[linear-gradient(120deg,#050817,#101827_70%,#083344)] [&_.trijo-chat-window>header]:px-[15px] [&_.trijo-chat-window>header]:py-[14px] [&_.trijo-chat-avatar]:grid [&_.trijo-chat-avatar]:h-[42px] [&_.trijo-chat-avatar]:w-[42px] [&_.trijo-chat-avatar]:shrink-0 [&_.trijo-chat-avatar]:place-items-center [&_.trijo-chat-avatar]:rounded-[13px] [&_.trijo-chat-avatar]:border [&_.trijo-chat-avatar]:border-cyan-300/30 [&_.trijo-chat-avatar]:bg-cyan-400/10 [&_.trijo-chat-avatar]:font-extrabold [&_.trijo-chat-avatar]:text-cyan-200 [&_.trijo-chat-messages]:flex-1 [&_.trijo-chat-messages]:overflow-y-auto [&_.trijo-chat-messages]:[scrollbar-width:none] [&_.trijo-chat-messages]:[-ms-overflow-style:none] [&_.trijo-chat-messages::-webkit-scrollbar]:hidden [&_.trijo-chat-messages]:bg-[#080d19] [&_.trijo-chat-messages]:px-[14px] [&_.trijo-chat-messages]:py-[17px] [&_.trijo-message]:mb-[11px] [&_.trijo-message]:flex [&_.trijo-message.user]:justify-end [&_.trijo-message>div]:max-w-[84%] [&_.trijo-message>div]:whitespace-pre-wrap [&_.trijo-message>div]:rounded-[14px] [&_.trijo-message>div]:border [&_.trijo-message>div]:border-white/10 [&_.trijo-message>div]:bg-[#141b2b] [&_.trijo-message>div]:px-3 [&_.trijo-message>div]:py-[9px] [&_.trijo-message>div]:text-[12px] [&_.trijo-message>div]:leading-[1.55] [&_.trijo-message>div]:text-white/75 [&_.trijo-message.user>div]:border-cyan-400/25 [&_.trijo-message.user>div]:bg-[linear-gradient(135deg,#0e7490,#155e75)] [&_.trijo-message.user>div]:text-cyan-50 [&_.trijo-starters]:flex [&_.trijo-starters]:gap-[6px] [&_.trijo-starters]:overflow-x-auto [&_.trijo-starters]:[scrollbar-width:none] [&_.trijo-starters]:[-ms-overflow-style:none] [&_.trijo-starters::-webkit-scrollbar]:hidden [&_.trijo-starters]:border-t [&_.trijo-starters]:border-white/10 [&_.trijo-starters]:px-[11px] [&_.trijo-starters]:py-[9px] [&_.trijo-chat-window>form]:flex [&_.trijo-chat-window>form]:items-end [&_.trijo-chat-window>form]:gap-2 [&_.trijo-chat-window>form]:border-t [&_.trijo-chat-window>form]:border-white/10 [&_.trijo-chat-window>form]:px-3 [&_.trijo-chat-window>form]:py-[11px] max-[520px]:[&_.trijo-chat-window]:fixed max-[520px]:[&_.trijo-chat-window]:inset-x-2 max-[520px]:[&_.trijo-chat-window]:bottom-2 max-[520px]:[&_.trijo-chat-window]:top-[88px] max-[520px]:[&_.trijo-chat-window]:h-auto max-[520px]:[&_.trijo-chat-window]:w-auto ${open ? "is-open max-[520px]:[&_.trijo-chat-launcher]:hidden" : ""}`}>
-    {open && <section className="trijo-chat-window" role="dialog" aria-modal="false" aria-label="Trijotech AI assistant">
-      <header><div className="trijo-chat-avatar" aria-hidden="true">T</div><div><strong>{settings.assistantName}</strong><span><i /> Online assistant</span></div><button type="button" onClick={clear} aria-label="Clear chat" title="Clear chat">↻</button><button type="button" onClick={() => setOpen(false)} aria-label="Close chatbot">×</button></header>
-      <div className="trijo-chat-messages" aria-live="polite">{state.messages.map((message) => <div key={message.id} className={`trijo-message ${message.role} ${message.error ? "error" : ""}`}><div><SafeText text={message.content} />{message.sources?.length ? <small>Sources: {message.sources.map((source, index) => <span key={source.id}>{index > 0 && " · "}{source.url ? <a href={source.url}>{source.title}</a> : source.title}</span>)}</small> : null}{message.error && lastFailed.current && <button type="button" onClick={() => send(lastFailed.current)}>Retry</button>}</div></div>)}{loading && <div className="trijo-message assistant is-typing"><div className="trijo-typing" aria-label="Assistant is typing"><i /><i /><i /></div><span className="trijo-typing-label">Trijotech is typing…</span></div>}<div ref={endRef} /></div>
-      {suggestions.length > 0 && <div className="trijo-starters">{suggestions.map((question) => <button type="button" key={question} onClick={() => send(question)}>{question}</button>)}</div>}
-      <form onSubmit={(event) => { event.preventDefault(); void send(); }}><textarea ref={inputRef} value={input} maxLength={settings.maximumMessageLength} rows={1} placeholder="Ask about our services…" aria-label="Chat message" onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void send(); } }} /><button type="submit" disabled={!input.trim() || loading} aria-label="Send message">➤</button></form>
-      <p className="trijo-chat-note">AI responses may need verification. Don’t share confidential information.</p>
-    </section>}
-    <button type="button" className="trijo-chat-launcher" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={open ? "Close AI assistant" : "Open AI assistant"}><span aria-hidden="true">{open ? "×" : "✦"}</span>{unread > 0 && <b aria-label={`${unread} unread message`}>{unread}</b>}</button>
-  </div>;
+  return (
+    <div ref={chatRef} className="fixed bottom-6 right-6 z-[60] font-sans max-[520px]:bottom-3 max-[520px]:right-3">
+      {open && (
+        <section className="trijo-chat-window absolute bottom-[74px] right-0 flex w-[min(430px,calc(100vw-32px))] flex-col overflow-hidden border border-white/10 bg-[#0b1020] text-white max-[520px]:fixed max-[520px]:inset-0 max-[520px]:h-dvh max-[520px]:w-full" role="dialog" aria-modal="false" aria-label="Trijotech chat assistant">
+          <header>
+            <div className="trijo-chat-avatar" aria-hidden="true"><MessageCircle size={21} /></div>
+            <div><strong>{settings.assistantName}</strong><span><i /> Online assistant</span></div>
+            {started && <button type="button" onClick={clear} aria-label="Clear chat" title="Clear chat"><RotateCcw size={18} /></button>}
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close chatbot"><X size={20} /></button>
+          </header>
+
+          {!started ? (
+            <form className="flex-1 space-y-3 overflow-y-auto bg-[#080d19] p-4" onSubmit={startChat}>
+              <div><h2 className="text-lg font-bold text-white">Start a conversation</h2><p className="mt-1 text-xs leading-5 text-white/55">Tell us a little about yourself so we can direct your query correctly.</p></div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <label className="text-xs font-semibold text-white/75">First Name *<input required autoComplete="given-name" value={visitor.firstName} onChange={(event) => updateVisitor("firstName", event.target.value)} className="mt-1 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" /></label>
+                <label className="text-xs font-semibold text-white/75">Last Name <span className="font-normal text-white/40">(optional)</span><input autoComplete="family-name" value={visitor.lastName} onChange={(event) => updateVisitor("lastName", event.target.value)} className="mt-1 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" /></label>
+              </div>
+              <label className="block text-xs font-semibold text-white/75">Email Address *<input required type="email" autoComplete="email" value={visitor.email} onChange={(event) => updateVisitor("email", event.target.value)} className="mt-1 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" /></label>
+              <label className="block text-xs font-semibold text-white/75">Mobile Number <span className="font-normal text-white/40">(optional)</span><input type="tel" autoComplete="tel" value={visitor.mobile} onChange={(event) => updateVisitor("mobile", event.target.value)} className="mt-1 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" /></label>
+              <label className="block text-xs font-semibold text-white/75">Address *<textarea required autoComplete="street-address" rows={2} value={visitor.address} onChange={(event) => updateVisitor("address", event.target.value)} className="mt-1 w-full resize-none rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" /></label>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <label className="text-xs font-semibold text-white/75">Country *<select required value={visitor.country} onChange={(event) => updateVisitor("country", event.target.value)} className="mt-1 w-full rounded-lg border border-white/15 bg-[#101827] px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400"><option value="">Select country</option><option>India</option><option>United States</option><option>United Kingdom</option><option>United Arab Emirates</option><option>Singapore</option><option>Australia</option><option>Canada</option><option>Germany</option><option>Other</option></select></label>
+                <label className="text-xs font-semibold text-white/75">Query Type *<select required value={visitor.queryType} onChange={(event) => updateVisitor("queryType", event.target.value)} className="mt-1 w-full rounded-lg border border-white/15 bg-[#101827] px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400"><option value="">Select query</option><option>Services</option><option>SAP Solutions</option><option>Project Enquiry</option><option>Support</option><option>Careers</option><option>Partnership</option><option>General Enquiry</option></select></label>
+              </div>
+              <button type="submit" className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">Continue to Chat <MessageCircle size={18} /></button>
+              <p className="text-center text-[10px] leading-4 text-white/35">Your details are used to assist with this conversation. Do not submit confidential information.</p>
+            </form>
+          ) : (
+            <>
+              <div className="trijo-chat-messages" aria-live="polite">{state.messages.map((message) => <div key={message.id} className={`trijo-message ${message.role} ${message.error ? "error" : ""}`}><div><SafeText text={message.content} />{message.sources?.length ? <small>Sources: {message.sources.map((source, index) => <span key={source.id}>{index > 0 && " | "}{source.url ? <a href={source.url}>{source.title}</a> : source.title}</span>)}</small> : null}{message.error && lastFailed.current && <button type="button" onClick={() => send(lastFailed.current)}>Retry</button>}</div></div>)}{loading && <div className="trijo-message assistant is-typing"><div className="trijo-typing" aria-label="Assistant is typing"><i /><i /><i /></div><span className="trijo-typing-label">Trijotech is typing...</span></div>}<div ref={endRef} /></div>
+              {suggestions.length > 0 && <div className="trijo-starters">{suggestions.map((question) => <button type="button" key={question} onClick={() => send(question)}>{question}</button>)}</div>}
+              <form className="trijo-chat-composer" onSubmit={(event) => { event.preventDefault(); void send(); }}><textarea ref={inputRef} value={input} maxLength={settings.maximumMessageLength} rows={1} placeholder="Ask about our services..." aria-label="Chat message" onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void send(); } }} /><button type="submit" disabled={!input.trim() || loading} aria-label="Send message"><Send size={18} /></button></form>
+              <p className="trijo-chat-note">AI responses may need verification. Do not share confidential information.</p>
+            </>
+          )}
+        </section>
+      )}
+      <button type="button" className={`trijo-chat-launcher relative grid h-[58px] w-[58px] place-items-center rounded-full border border-cyan-300/35 bg-[linear-gradient(145deg,#111827,#071827_62%,#0891b2)] text-cyan-100 shadow-[0_16px_38px_rgba(3,7,19,.38),0_0_0_5px_rgba(34,211,238,.08)] transition ${open ? "max-[520px]:hidden" : ""}`} onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={open ? "Close chat" : "Open chat"}>{open ? <X size={25} aria-hidden="true" /> : <MessageCircle size={27} aria-hidden="true" />}{unread > 0 && <b aria-label={`${unread} unread message`}>{unread}</b>}</button>
+    </div>
+  );
 }

@@ -10,28 +10,28 @@ export default function CareersCultureShowcase() {
       title: "SAP Certifications & Learning",
       desc: "Sponsored certifications across S/4HANA, BTP, PaPM, SAC & AI.",
       badge: "Growth",
-      tone: "emerald",
+      tone: "blue",
     },
     {
       icon: Users,
       title: "Direct Leadership Mentorship",
       desc: "Work closely with seasoned architects and directors on enterprise programs.",
       badge: "Mentorship",
-      tone: "cyan",
+      tone: "blue",
     },
     {
       icon: TrendingUp,
       title: "Merit-Driven Progression",
       desc: "Clear career advancement tied to delivery impact, ownership, and skill growth.",
       badge: "Fast-Track",
-      tone: "amber",
+      tone: "blue",
     },
     {
       icon: Compass,
       title: "Modern Hybrid Workplace",
       desc: "Flexible, outcome-oriented work model built for balance and high performance.",
       badge: "Flexibility",
-      tone: "emerald",
+      tone: "blue",
     },
   ];
 
@@ -68,9 +68,6 @@ export default function CareersCultureShowcase() {
         <div className="relative z-10 mt-6 grid flex-1 gap-4 sm:grid-cols-2">
           {perks.map((perk, idx) => {
             const Icon = perk.icon;
-            const isCyan = perk.tone === "cyan";
-            const isAmber = perk.tone === "amber";
-
             return (
               <motion.div
                 key={perk.title}
@@ -89,13 +86,7 @@ export default function CareersCultureShowcase() {
                       <Icon className="h-5 w-5 text-[#38bdf8]" strokeWidth={2.2} />
                     </span>
                     <span
-                      className={`rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
-                        isCyan
-                          ? "bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/30"
-                          : isAmber
-                          ? "bg-amber-400/15 text-amber-300 border border-amber-400/30"
-                          : "bg-emerald-400/15 text-emerald-300 border border-emerald-400/30"
-                      }`}
+                      className="rounded-md border border-[#60a5fa]/30 bg-[#3b82f6]/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#93c5fd]"
                     >
                       {perk.badge}
                     </span>

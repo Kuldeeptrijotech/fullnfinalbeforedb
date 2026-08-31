@@ -5,7 +5,7 @@ import OptimizedVideo from "@/components/ui/OptimizedVideo";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Container from "@/components/ui/Container";
-import { heroSlides } from "@/lib/hero-data";
+import type { HeroSlideData } from "@/lib/services/homepage.service";
 
 const AUTO_PLAY_MS = 6500;
 
@@ -36,20 +36,29 @@ const childVariants: Variants = {
   }),
 };
 
-export default function Hero() {
+export interface HeroProps {
+  slides: HeroSlideData[];
+}
+
+export default function Hero({ slides }: HeroProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   const sectionInView = useInView(sectionRef, { amount: 0.05 });
   const reduce = useReducedMotion();
-  const activeSlide = heroSlides[activeIndex];
+
+  const activeSlide = slides && slides.length > 0 ? slides[activeIndex % slides.length] : null;
 
   useEffect(() => {
-    if (reduce || !sectionInView) return;
+    if (reduce || !sectionInView || !slides || slides.length <= 1) return;
     const timer = window.setTimeout(() => {
-      setActiveIndex((current) => (current + 1) % heroSlides.length);
+      setActiveIndex((current) => (current + 1) % slides.length);
     }, AUTO_PLAY_MS);
     return () => window.clearTimeout(timer);
-  }, [activeIndex, reduce, sectionInView]);
+  }, [activeIndex, reduce, sectionInView, slides]);
+
+  if (!activeSlide || !slides || slides.length === 0) {
+    return null;
+  }
 
   return (
     <section ref={sectionRef} className="hero-fullvh relative isolate overflow-hidden bg-[#050817] text-white">
@@ -57,7 +66,7 @@ export default function Hero() {
       <div aria-hidden className="absolute inset-0 -z-40 bg-[linear-gradient(180deg,#071224_0%,#050b18_50%,#030713_100%)]" />
       <div aria-hidden className="absolute inset-0 -z-30 tri-hex-grid opacity-50" />
 
-      {/* Slide background image with atmospheric depth overlays */}
+      {/* Slide background video/image with atmospheric depth overlays */}
       <AnimatePresence mode="wait">
         <motion.div
           key={activeSlide.id}
@@ -93,7 +102,7 @@ export default function Hero() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className={`flex flex-col ${["sap-consulting", "sap-support-ams", "sap-btp-applications", "sap-data-ai"].includes(activeSlide.id) ? "pt-24 sm:pt-28" : ""}`}
+              className="flex flex-col pt-24 sm:pt-28"
             >
               {/* Eyebrow badge */}
               <motion.span
@@ -110,17 +119,7 @@ export default function Hero() {
                 variants={childVariants}
                 className="home-hero-heading max-w-4xl text-4xl font-extrabold leading-[1.04] tracking-[-0.025em] text-white sm:text-5xl lg:text-6xl"
               >
-                {activeSlide.id === "sap-consulting" ? (
-                  "Plan, implement, and optimize SAP systems with confidence"
-                ) : activeSlide.id === "sap-support-ams" ? (
-                  "Keep your SAP systems stable, secure, and continuously optimized"
-                ) : activeSlide.id === "sap-btp-applications" ? (
-                  "Build scalable SAP extensions, portals, and workflows"
-                ) : activeSlide.id === "sap-data-ai" ? (
-                  "Turn enterprise data into smarter decisions"
-                ) : (
-                  activeSlide.title
-                )}
+                {activeSlide.title}
               </motion.h1>
 
               {/* Description */}
@@ -134,45 +133,51 @@ export default function Hero() {
 
               {/* CTAs */}
               <motion.div custom={3} variants={childVariants} className="mt-9 flex flex-wrap gap-4 relative z-10">
-                <Link
-                  href={activeSlide.primaryCta.href}
-                  className="inline-flex items-center justify-center rounded-full px-7 py-4 text-sm font-bold text-slate-950 bg-white hover:bg-slate-100 border-0 shadow-[0_8px_20px_rgba(255,255,255,0.25)] hover:shadow-[0_12px_28px_rgba(255,255,255,0.4)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-                >
-                  {activeSlide.primaryCta.label}
-                </Link>
-                <Link
-                  href={activeSlide.secondaryCta.href}
-                  className="inline-flex items-center justify-center rounded-full px-7 py-4 text-sm font-semibold text-white border border-white/20 bg-white/5 hover:bg-white/10 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-                >
-                  {activeSlide.secondaryCta.label}
-                </Link>
+                {activeSlide.primaryCta?.href && activeSlide.primaryCta?.label && (
+                  <Link
+                    href={activeSlide.primaryCta.href}
+                    className="inline-flex items-center justify-center rounded-full px-7 py-4 text-sm font-bold text-slate-950 bg-white hover:bg-slate-100 border-0 shadow-[0_8px_20px_rgba(255,255,255,0.25)] hover:shadow-[0_12px_28px_rgba(255,255,255,0.4)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                  >
+                    {activeSlide.primaryCta.label}
+                  </Link>
+                )}
+                {activeSlide.secondaryCta?.href && activeSlide.secondaryCta?.label && (
+                  <Link
+                    href={activeSlide.secondaryCta.href}
+                    className="inline-flex items-center justify-center rounded-full px-7 py-4 text-sm font-semibold text-white border border-white/20 bg-white/5 hover:bg-white/10 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                  >
+                    {activeSlide.secondaryCta.label}
+                  </Link>
+                )}
               </motion.div>
             </motion.div>
           </AnimatePresence>
 
           {/* Slide indicators */}
-          <div className="mt-8 flex items-center gap-3">
-            {heroSlides.map((slide, index) => {
-              const isActive = index === activeIndex;
-              return (
-                <button
-                  key={slide.id}
-                  type="button"
-                  aria-label={`Show ${slide.eyebrow}`}
-                  onClick={() => setActiveIndex(index)}
-                  className="group flex h-5 items-center"
-                >
-                  <span
-                    className={`block rounded-full transition-all duration-500 ${
-                      isActive
-                        ? "h-1.5 w-10 bg-[linear-gradient(90deg,#67e8f9,#22d3ee)]"
-                        : "h-1 w-4 bg-slate-500/70 group-hover:bg-cyan-200/70"
-                    }`}
-                  />
-                </button>
-              );
-            })}
-          </div>
+          {slides.length > 1 && (
+            <div className="mt-8 flex items-center gap-3">
+              {slides.map((slide, index) => {
+                const isActive = index === (activeIndex % slides.length);
+                return (
+                  <button
+                    key={slide.id || index}
+                    type="button"
+                    aria-label={`Show ${slide.eyebrow}`}
+                    onClick={() => setActiveIndex(index)}
+                    className="group flex h-5 items-center"
+                  >
+                    <span
+                      className={`block rounded-full transition-all duration-500 ${
+                        isActive
+                          ? "h-1.5 w-10 bg-[linear-gradient(90deg,#67e8f9,#22d3ee)]"
+                          : "h-1 w-4 bg-slate-500/70 group-hover:bg-cyan-200/70"
+                      }`}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </Container>
     </section>

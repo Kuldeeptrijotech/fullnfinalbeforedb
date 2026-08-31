@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Script from "next/script";
 import { Check, ChevronDown, FileText, Upload } from "lucide-react";
+const TURNSTILE_SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+function TurnstileField({ action, onTokenChange, resetSignal }) {
+ const containerRef=useRef(null),widgetIdRef=useRef(null),siteKey=process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+ const [scriptReady,setScriptReady]=useState(false),[challengeState,setChallengeState]=useState("loading");
+ useEffect(()=>{if(!scriptReady||!siteKey||!containerRef.current||!window.turnstile||widgetIdRef.current!==null)return;widgetIdRef.current=window.turnstile.render(containerRef.current,{sitekey:siteKey,action,theme:"light",size:"flexible",callback:(token)=>{onTokenChange(token);setChallengeState("verified");},"expired-callback":()=>{onTokenChange("");setChallengeState("expired");},"error-callback":()=>{onTokenChange("");setChallengeState("error");}});return()=>{if(widgetIdRef.current!==null&&window.turnstile)window.turnstile.remove(widgetIdRef.current);widgetIdRef.current=null;};},[action,onTokenChange,scriptReady,siteKey]);
+ useEffect(()=>{if(resetSignal>0&&widgetIdRef.current!==null&&window.turnstile){window.turnstile.reset(widgetIdRef.current);onTokenChange("");setChallengeState("loading");}},[onTokenChange,resetSignal]);
+ if(!siteKey)return <p className="turnstile-notice turnstile-notice-error" role="alert">Secure verification is temporarily unavailable. Please try again later.</p>;
+ return <div className="turnstile-shell" aria-label="Cloudflare security verification"><Script src={TURNSTILE_SCRIPT} strategy="afterInteractive" onReady={()=>setScriptReady(true)}/><div ref={containerRef} className="turnstile-widget"/>{challengeState==="loading"&&<p className="turnstile-notice">Checking your connection securely...</p>}{challengeState==="verified"&&<p className="turnstile-notice turnstile-notice-success"><Check className="h-4 w-4"/> Security check complete</p>}{challengeState==="expired"&&<p className="turnstile-notice turnstile-notice-error">Verification expired. Please complete the check again.</p>}{challengeState==="error"&&<p className="turnstile-notice turnstile-notice-error">The security check could not load. Please refresh and try again.</p>}</div>;
+}
 
 function CustomSelect({ name, placeholder, options, required = false, controlClass }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -113,6 +123,8 @@ export default function ContactUs({
     const [selectedFile, setSelectedFile] = useState(null);
     const [status, setStatus] = useState({ type: "", message: "" });
     const [submitting, setSubmitting] = useState(false);
+    const [turnstileToken, setTurnstileToken] = useState("");
+    const [turnstileReset, setTurnstileReset] = useState(0);
 
     useEffect(() => {
         const form = formRef.current;
@@ -139,6 +151,8 @@ export default function ContactUs({
         setStatus({ type: "", message: "" });
         const form = event.currentTarget;
         const data = new FormData(form);
+        if (!turnstileToken) { setStatus({ type: "error", message: "Please complete the security verification before submitting." }); return; }
+        data.set("cf-turnstile-response", turnstileToken);
         setSubmitting(true);
 
         try {
@@ -150,6 +164,7 @@ export default function ContactUs({
             if (!response.ok) throw new Error(result.error || "Unable to submit the form.");
             form.reset();
             setSelectedFile(null);
+            setTurnstileReset((value) => value + 1);
             setStatus({ type: "success", message: result.message });
         } catch (error) {
             setStatus({ type: "error", message: error instanceof Error ? error.message : "Unable to submit the form." });
@@ -289,6 +304,7 @@ export default function ContactUs({
                                             </label>
                                         </fieldset>
                                     </div>
+                                    <div className={fullColumn}><TurnstileField action={isCareer ? "career_form" : "contact_form"} onTokenChange={setTurnstileToken} resetSignal={turnstileReset} /></div>
                                     {status.message && (
                                         <div className={fullColumn}>
                                             <p className={`rounded-xl px-4 py-3 text-sm font-medium ${status.type === "success" ? "border border-emerald-300 bg-emerald-50 text-emerald-900" : "border border-rose-300 bg-rose-50 text-rose-900"}`} role="status" aria-live="polite">
@@ -298,7 +314,7 @@ export default function ContactUs({
                                     )}
                                     <div className={`${fullColumn} flex justify-center mt-2`}>
                                         <fieldset className="m-0">
-                                            <button type="submit" className="inline-flex items-center justify-center min-w-[200px] rounded-full px-8 py-3.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-lg shadow-slate-900/20 transition-all duration-200" disabled={submitting}>
+                                            <button type="submit" className="inline-flex items-center justify-center min-w-[200px] rounded-full px-8 py-3.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-lg shadow-slate-900/20 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none" disabled={submitting || !turnstileToken}>
                                                 {submitting ? "Sending..." : isCareer ? "Submit Application" : "Send Message"}
                                             </button>
                                         </fieldset>

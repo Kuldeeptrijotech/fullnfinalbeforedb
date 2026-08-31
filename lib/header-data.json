@@ -174,7 +174,7 @@
     {
       "name": "Corporate",
       "type": "dropdown",
-      "href": "/corporate",
+      "href": "/about-us",
       "description": "Learn more about Trijotech, our people, careers, and contact options.\nConnect with our team and discover how we support businesses through technology.",
       "items": [
         {

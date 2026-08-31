@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { legacyBlogPosts, type Blog, type BlogPost } from "@/app/data/blogs";
+import { getAllBlogPostsFromDb, saveBlogPostToDb } from "./services/blog.service";
 
 type BlogStore = { version: 1; initialized: boolean; updatedAt: string | null; posts: BlogPost[] };
 const storePath = path.join(process.cwd(), "app", "data", "blogs.json");
@@ -49,10 +50,43 @@ export function uniqueSlug(value: string, posts: BlogPost[], excludeId?: string)
 
 export async function readBlogStore(): Promise<BlogStore> {
   try {
+    const dbPosts = await getAllBlogPostsFromDb(true);
+    if (dbPosts.length > 0) {
+      return {
+        version: 1,
+        initialized: true,
+        updatedAt: dbPosts[0]?.updatedAt || null,
+        posts: dbPosts,
+      };
+    }
+  } catch (err) {
+    console.warn("Falling back to blogs.json file:", err);
+  }
+
+  try {
     const raw = await fs.readFile(storePath, "utf8");
     const parsed = JSON.parse(raw.replace(/^\uFEFF/, "")) as BlogStore;
     if (!parsed.initialized) return initialStore();
-    return { version: 1, initialized: true, updatedAt: parsed.updatedAt || null, posts: Array.isArray(parsed.posts) ? parsed.posts.map((post) => ({ ...post, featuredImage: normalizeBlogImagePath(post.featuredImage || ""), featuredImageStyle: { ...defaultFeaturedImageStyle(), ...(post.featuredImageStyle || {}) }, contentImages: Array.isArray(post.contentImages) ? post.contentImages : [], contentBlocks: Array.isArray(post.contentBlocks) ? post.contentBlocks.map((block) => ({ ...block, linkUrl: block.linkUrl || "", style: { ...defaultBlogBlockStyle(), ...(block.style || {}) } })) : [] })) : [] };
+    return {
+      version: 1,
+      initialized: true,
+      updatedAt: parsed.updatedAt || null,
+      posts: Array.isArray(parsed.posts)
+        ? parsed.posts.map((post) => ({
+            ...post,
+            featuredImage: normalizeBlogImagePath(post.featuredImage || ""),
+            featuredImageStyle: { ...defaultFeaturedImageStyle(), ...(post.featuredImageStyle || {}) },
+            contentImages: Array.isArray(post.contentImages) ? post.contentImages : [],
+            contentBlocks: Array.isArray(post.contentBlocks)
+              ? post.contentBlocks.map((block) => ({
+                  ...block,
+                  linkUrl: block.linkUrl || "",
+                  style: { ...defaultBlogBlockStyle(), ...(block.style || {}) },
+                }))
+              : [],
+          }))
+        : [],
+    };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     return initialStore();
@@ -61,19 +95,41 @@ export async function readBlogStore(): Promise<BlogStore> {
 
 export async function hasPersistentBlogStore() {
   try {
+    const dbPosts = await getAllBlogPostsFromDb(true);
+    if (dbPosts.length > 0) return true;
+  } catch {
+    // fallback to file
+  }
+  try {
     const parsed = JSON.parse((await fs.readFile(storePath, "utf8")).replace(/^\uFEFF/, "")) as Partial<BlogStore>;
     return parsed.initialized === true;
   } catch { return false; }
 }
 
 export async function writeBlogStore(posts: BlogPost[]) {
-  const next: BlogStore = { version: 1, initialized: true, updatedAt: new Date().toISOString(), posts };
-  const temporaryPath = `${storePath}.tmp`;
-  await fs.writeFile(temporaryPath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
-  await fs.rename(temporaryPath, storePath);
+  // Save each post to PostgreSQL
+  for (const post of posts) {
+    await saveBlogPostToDb(post);
+  }
+
+  // Backup to JSON file
+  try {
+    const next: BlogStore = { version: 1, initialized: true, updatedAt: new Date().toISOString(), posts };
+    const temporaryPath = `${storePath}.tmp`;
+    await fs.writeFile(temporaryPath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
+    await fs.rename(temporaryPath, storePath);
+  } catch (fileErr) {
+    console.warn("Could not write file backup for blogs:", fileErr);
+  }
 }
 
-export async function readBlogPosts() {
+export async function readBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const dbPosts = await getAllBlogPostsFromDb(true);
+    if (dbPosts.length > 0) return dbPosts;
+  } catch (err) {
+    console.warn("Error loading blogs from PostgreSQL, using fallback:", err);
+  }
   return (await readBlogStore()).posts;
 }
 

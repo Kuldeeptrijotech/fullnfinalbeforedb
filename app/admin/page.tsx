@@ -11,7 +11,7 @@ const coreRoutes = [
   ["Services", "/services"], ["SAP Consulting", "/services/sap-consulting"], ["SAP Implementation", "/services/sap-implementation"],
   ["SAP Support", "/services/sap-support"], ["SAP BTP Full Stack", "/services/sap-btp-full-stack"],
   ["SAP Data Integration", "/services/sap-data-integration"], ["SAP AI & ML", "/services/sap-ai-ml"],
-  ["About Us", "/about-us"], ["Corporate", "/corporate"], ["Retail & Supply Chain", "/industries/retail-supply-chain"],
+  ["About Us", "/about-us"], ["Retail & Supply Chain", "/industries/retail-supply-chain"],
   ["Pharmaceuticals & Life Sciences", "/industries/pharmaceuticals-life-sciences"], ["Manufacturing", "/industries/manufacturing"],
   ["Fintech", "/industries/fintech"], ["Entertainment", "/industries/entertainment"], ["Steel Manufacturing", "/industries/steel-manufacturing"],
   ["Telecommunications", "/industries/telecommunications"], ["Insights", "/insights"], ["Blogs", "/blogs"],

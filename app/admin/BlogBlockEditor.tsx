@@ -41,17 +41,17 @@ const defaultStyle = (): Block["style"] => ({
   customCss: "",
 });
 
-const palette: Array<{ type: BlockType; label: string; icon: string; help: string }> = [
-  { type: "heading", label: "Add Heading", icon: "H1", help: "Main article section heading" },
-  { type: "subheading", label: "Add Subheading", icon: "H2", help: "Topic subsection heading" },
-  { type: "content", label: "Add Content", icon: "¶", help: "Paragraph or rich body text" },
-  { type: "image", label: "Add Image", icon: "▧", help: "Inline responsive image" },
-  { type: "quote", label: "Add Quote", icon: "❝", help: "Highlighted pull quotation" },
-  { type: "bulletList", label: "Add Bullet List", icon: "•", help: "Unordered bulleted points" },
-  { type: "numberedList", label: "Add Numbered List", icon: "1.", help: "Ordered step-by-step points" },
-  { type: "callout", label: "Add Callout", icon: "!", help: "Highlighted note or insight box" },
-  { type: "divider", label: "Add Divider", icon: "—", help: "Clean horizontal separator" },
-  { type: "link", label: "Add Link", icon: "↗", help: "Action link or resource CTA" },
+const palette: Array<{ type: BlockType; label: string; help: string }> = [
+  { type: "heading", label: "Add Heading", help: "Main article section heading" },
+  { type: "subheading", label: "Add Subheading", help: "Topic subsection heading" },
+  { type: "content", label: "Add Content", help: "Paragraph or rich body text" },
+  { type: "image", label: "Add Image", help: "Inline responsive image" },
+  { type: "quote", label: "Add Quote", help: "Highlighted pull quotation" },
+  { type: "bulletList", label: "Add Bullet List", help: "Unordered bulleted points" },
+  { type: "numberedList", label: "Add Numbered List", help: "Ordered step-by-step points" },
+  { type: "callout", label: "Add Callout", help: "Highlighted note or insight box" },
+  { type: "divider", label: "Add Divider", help: "Clean horizontal separator" },
+  { type: "link", label: "Add Link", help: "Action link or resource CTA" },
 ];
 
 const newBlock = (type: BlockType): Block => ({
@@ -105,29 +105,29 @@ function RichTextField({
     <div className="admin-field admin-rich-field">
       <label htmlFor={id}>{label}</label>
       <div className="admin-inline-toolbar" aria-label={`${label} formatting tools`}>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("bold")} title="Bold (Ctrl+B)"><strong>B</strong></button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("italic")} title="Italic (Ctrl+I)"><em>I</em></button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("underline")} title="Underline (Ctrl+U)"><u>U</u></button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("strikeThrough")} title="Strikethrough"><s>S</s></button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("subscript")} title="Subscript">X₂</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("superscript")} title="Superscript">X²</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("backColor", "#fff1ad")} title="Yellow Highlight" style={{ background: "#fff9db" }}>🎨 Yellow</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("backColor", "#d1fae5")} title="Mint Highlight" style={{ background: "#ecfdf5" }}>🌿 Mint</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("backColor", "#fef3c7")} title="Amber Highlight" style={{ background: "#fffbeb" }}>☀️ Amber</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("bold")} title="Bold (Ctrl+B)">Bold</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("italic")} title="Italic (Ctrl+I)">Italic</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("underline")} title="Underline (Ctrl+U)">Underline</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("strikeThrough")} title="Strikethrough">Strike</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("subscript")} title="Subscript">Subscript</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("superscript")} title="Superscript">Superscript</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("backColor", "#fff1ad")} title="Yellow Highlight" style={{ background: "#fff9db" }}>Yellow highlight</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("backColor", "#d1fae5")} title="Mint Highlight" style={{ background: "#ecfdf5" }}>Mint highlight</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("backColor", "#dbeafe")} title="Amber Highlight" style={{ background: "#eff6ff" }}>Amber highlight</button>
         <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("foreColor", "#ffffff")} title="Deep Green" style={{ color: "#ffffff", fontWeight: 700 }}>Green</button>
         <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("foreColor", "#ffffff")} title="Mint Teal" style={{ color: "#ffffff", fontWeight: 700 }}>Mint</button>
         <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("foreColor", "#ffffff")} title="Amber Gold" style={{ color: "#ffffff", fontWeight: 700 }}>Amber</button>
         <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("foreColor", "#0284c7")} title="Sky Blue" style={{ color: "#0284c7", fontWeight: 700 }}>Cyan</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("justifyLeft")} title="Align Left">⇤</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("justifyCenter")} title="Align Center">≡</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("justifyRight")} title="Align Right">⇥</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("justifyFull")} title="Justify Text">⇹</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("insertUnorderedList")} title="Bullet List">• List</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("insertOrderedList")} title="Numbered List">1. List</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("formatBlock", "blockquote")} title="Quote Block">❝ Quote</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("formatBlock", "pre")} title="Code Block">&lt;/&gt; Code</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={addLink} title="Add link">↗ Link</button>
-        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("removeFormat")} title="Clear formatting" style={{ color: "#b42318" }}>✕ Clear</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("justifyLeft")} title="Align Left">Align left</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("justifyCenter")} title="Align Center">Align center</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("justifyRight")} title="Align Right">Align right</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("justifyFull")} title="Justify Text">Justify</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("insertUnorderedList")} title="Bullet List">Bullet list</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("insertOrderedList")} title="Numbered List">Numbered list</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("formatBlock", "blockquote")} title="Quote Block">Quote</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("formatBlock", "pre")} title="Code Block">Code block</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={addLink} title="Add link">Add link</button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => run("removeFormat")} title="Clear formatting" style={{ color: "#b42318" }}>Clear formatting</button>
       </div>
       <div
         ref={editorRef}
@@ -308,15 +308,13 @@ export default function BlogBlockEditor({
               onDragEnd={() => setDropIndex(null)}
             >
               <div className="admin-content-block-header">
-                <span className="admin-drag-handle" aria-label="Drag to reorder" title="Drag to reorder">
-                  ⋮⋮
-                </span>
+                <span className="admin-drag-handle">Drag</span>
                 <strong>
                   {palette.find((item) => item.type === block.type)?.label.replace("Add ", "")}
                 </strong>
                 <div>
                   <button type="button" onClick={() => duplicate(block, index)} aria-label="Duplicate block" title="Duplicate block">
-                    ⧉
+                    Duplicate
                   </button>
                   <button
                     type="button"
@@ -324,18 +322,14 @@ export default function BlogBlockEditor({
                     disabled={index === 0}
                     aria-label="Move block up"
                     title="Move up"
-                  >
-                    ↑
-                  </button>
+                  >Up</button>
                   <button
                     type="button"
                     onClick={() => index < blocks.length - 1 && move(block.id, index + 2)}
                     disabled={index === blocks.length - 1}
                     aria-label="Move block down"
                     title="Move down"
-                  >
-                    ↓
-                  </button>
+                  >Down</button>
                   <button type="button" className="remove" onClick={() => remove(block.id)} aria-label="Remove block" title="Remove block">
                     ×
                   </button>
@@ -461,7 +455,7 @@ export default function BlogBlockEditor({
                       id={`${block.id}-value`}
                       value={block.value}
                       onChange={(event) => update(block.id, { value: event.target.value })}
-                      placeholder="Explore SAP BTP Solutions ↗"
+                      placeholder="Explore SAP BTP Solutions"
                     />
                   </div>
                   <div className="admin-field">
@@ -516,7 +510,7 @@ export default function BlogBlockEditor({
                   EXPANDED ULTRA-POWERFUL CUSTOMIZE STYLING SECTION
                   ─────────────────────────────────────────────────────────── */}
               <details className="admin-block-style-tools" open={false}>
-                <summary>🎨 Customize Styling &amp; Design (Advanced)</summary>
+                <summary>Customize Styling and Design (Advanced)</summary>
                 
                 <div className="admin-block-style-grid">
                   {/* 1. TYPOGRAPHY */}
@@ -689,12 +683,12 @@ export default function BlogBlockEditor({
                       onChange={(e) => updateStyle(block.id, { backgroundGradient: e.target.value })}
                     >
                       <option value="none">None (Solid Color)</option>
-                      <option value="emerald">🌿 Emerald / Mint Ambient Subtle</option>
-                      <option value="amber">☀️ Amber Gold Radiant Sunset</option>
-                      <option value="midnight">🌌 Deep Midnight Card (Dark)</option>
-                      <option value="cyan">⚡ Electric Cyan High-Tech</option>
-                      <option value="glass">🪟 Frosted Dark Glass</option>
-                      <option value="frost">❄️ Soft Light Frost</option>
+                      <option value="emerald">Emerald / Mint Ambient Subtle</option>
+                      <option value="amber">Amber Gold Radiant Sunset</option>
+                      <option value="midnight">Deep Midnight Card (Dark)</option>
+                      <option value="cyan">Electric Cyan High-Tech</option>
+                      <option value="glass">Frosted Dark Glass</option>
+                      <option value="frost">Soft Light Frost</option>
                     </select>
                   </div>
 
@@ -782,9 +776,9 @@ export default function BlogBlockEditor({
                       <option value="soft">Soft Ambient Drop Shadow</option>
                       <option value="medium">Elevated Card Shadow</option>
                       <option value="deep">Deep 3D Floating Shadow</option>
-                      <option value="glow-green">🌿 Emerald Green Outer Glow</option>
-                      <option value="glow-amber">☀️ Amber Gold Outer Glow</option>
-                      <option value="glow-cyan">⚡ Electric Cyan Glow</option>
+                      <option value="glow-green">Emerald Green Outer Glow</option>
+                      <option value="glow-amber">Amber Gold Outer Glow</option>
+                      <option value="glow-cyan">Electric Cyan Glow</option>
                     </select>
                   </div>
 
@@ -907,8 +901,8 @@ export default function BlogBlockEditor({
                           <option value="none">None</option>
                           <option value="soft">Soft Subtle Shadow</option>
                           <option value="strong">Strong 3D Depth Shadow</option>
-                          <option value="glow-green">🌿 Emerald Ambient Glow</option>
-                          <option value="glow-amber">☀️ Amber Gold Ambient Glow</option>
+                          <option value="glow-green">Emerald Ambient Glow</option>
+                          <option value="glow-amber">Amber Gold Ambient Glow</option>
                         </select>
                       </div>
                     </>
@@ -917,7 +911,7 @@ export default function BlogBlockEditor({
                   {/* 6. POWER USER FREEFORM CUSTOM CSS */}
                   <div className="admin-field admin-field-wide" style={{ gridColumn: "1 / -1" }}>
                     <label htmlFor={`${block.id}-custom-css`}>
-                      ⚡ Custom CSS styles (Type any CSS property)
+                      Custom CSS styles (Type any CSS property)
                     </label>
                     <input
                       id={`${block.id}-custom-css`}
@@ -931,7 +925,7 @@ export default function BlogBlockEditor({
                   {/* Reset Button */}
                   <div className="admin-field admin-style-reset" style={{ gridColumn: "1 / -1" }}>
                     <button type="button" onClick={() => update(block.id, { style: defaultStyle() })}>
-                      ↺ Reset all styling to default
+                      Reset all styling to default
                     </button>
                   </div>
                 </div>
@@ -978,12 +972,10 @@ export default function BlogBlockEditor({
               onDragEnd={() => setDropIndex(null)}
               onClick={() => add(item.type)}
             >
-              <span>{item.icon}</span>
               <div>
                 <strong>{item.label}</strong>
                 <small>{item.help}</small>
               </div>
-              <i aria-hidden="true">⠿</i>
             </button>
           ))}
         </div>

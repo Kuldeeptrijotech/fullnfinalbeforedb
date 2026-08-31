@@ -6,6 +6,9 @@ import type { BlogPost } from "@/app/data/blogs";
 import ImageUploadField from "./ImageUploadField";
 import BlogManager from "./BlogManager";
 import AdminNavbar from "./AdminNavbar";
+import AnimationUploadField from "./AnimationUploadField";
+import { detectSectionCapabilities, tabsForCapabilities, type EditorTab, type SectionCapabilities } from "./section-capabilities";
+import type { AnimationAttribute, AnimationKind } from "@/app/lib/animation-config";
 
 function stripHtmlTags(str: string): string {
   try {
@@ -38,6 +41,9 @@ type Selection = {
   heroImageSelector: string;
   animation: string;
   animationSelector: string;
+  animationType?: AnimationKind;
+  animationAttribute?: AnimationAttribute;
+  capabilities?: Partial<SectionCapabilities>;
 
   // Image dimensions & styling
   imageWidth?: string;
@@ -129,7 +135,7 @@ export default function AdminEditor({
   const [selection, setSelection] = useState<Selection | null>(null);
 
   // Active sub-tab in the editor panel
-  const [activeTab, setActiveTab] = useState<"content" | "image" | "animation" | "style" | "section" | "add">("content");
+  const [activeTab, setActiveTab] = useState<EditorTab>("content");
 
   // Content text & links
   const [html, setHtml] = useState("");
@@ -141,6 +147,7 @@ export default function AdminEditor({
   const [backgroundImage, setBackgroundImage] = useState("");
   const [heroImage, setHeroImage] = useState("");
   const [animation, setAnimation] = useState("default");
+  const [animationType, setAnimationType] = useState<AnimationKind>("preset");
 
   // Image Dimensions & Sizing
   const [imageWidth, setImageWidth] = useState("");
@@ -195,6 +202,8 @@ export default function AdminEditor({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [stagedUploads, setStagedUploads] = useState<string[]>([]);
   const hasHtmlTags = useMemo(() => /<[a-z][\s\S]*>/i.test(html), [html]);
+  const capabilities = useMemo(() => selection ? detectSectionCapabilities(selection) : null, [selection]);
+  const editorTabs = useMemo(() => capabilities ? tabsForCapabilities(capabilities) : [], [capabilities]);
 
   const allEntries = useMemo(
     () => [
@@ -284,18 +293,19 @@ export default function AdminEditor({
   function handleSelectAnimation(nextAnimation: string) {
     setAnimation(nextAnimation);
     if (!selection || !selection.animationSelector) return;
-    const saved = existing("attribute", "data-admin-animation", selection.animationSelector);
+    const animationAttribute = selection.animationAttribute || "data-admin-animation";
+    const saved = existing("attribute", animationAttribute, selection.animationSelector);
     const entry: ContentEntry = {
-      id: saved?.id ?? entryId({ ...selection, selector: selection.animationSelector }, "attribute", "data-admin-animation"),
+      id: saved?.id ?? entryId({ ...selection, selector: selection.animationSelector }, "attribute", animationAttribute),
       selector: selection.animationSelector,
       kind: "attribute",
-      attribute: "data-admin-animation",
+      attribute: animationAttribute,
       value: nextAnimation,
       match: saved?.match ?? selection.animation,
       label: `${selection.sectionLabel} animation`,
     };
     frame.current?.contentWindow?.postMessage({ type: "admin-content-preview", entries: [entry] }, window.location.origin);
-    setNotice({ type: "success", text: `Hero animation set to "${nextAnimation}". Click Live Preview or Save Changes.` });
+    setNotice({ type: "success", text: nextAnimation ? "Animation preview updated. Save Changes to publish it." : "Animation removed from the preview. Save Changes to publish it." });
   }
 
   useEffect(() => {
@@ -308,6 +318,7 @@ export default function AdminEditor({
           entry.selector === next.hrefSelector ||
           entry.selector === next.backgroundSelector ||
           entry.selector === next.heroImageSelector ||
+          entry.selector === next.animationSelector ||
           entry.selector === next.sectionSelector
       );
 
@@ -318,7 +329,8 @@ export default function AdminEditor({
       const altEntry = existing.find((entry) => entry.kind === "attribute" && entry.attribute === altAttribute);
       const backgroundEntry = existing.find((entry) => entry.kind === "backgroundImage");
       const heroImageEntry = existing.find((entry) => entry.kind === "attribute" && entry.attribute === "src" && entry.selector === next.heroImageSelector);
-      const animationEntry = existing.find((entry) => entry.kind === "attribute" && entry.attribute === "data-admin-animation");
+      const animationAttribute = next.animationAttribute || "data-admin-animation";
+      const animationEntry = existing.find((entry) => entry.kind === "attribute" && entry.attribute === animationAttribute && entry.selector === next.animationSelector);
 
       const sectionStyleEntry = existing.find((entry) => entry.kind === "sectionStyle");
       const sectionOptions = sectionStyleEntry ? (JSON.parse(sectionStyleEntry.value) as Record<string, unknown>) : {};
@@ -349,7 +361,8 @@ export default function AdminEditor({
       setAlt(altEntry?.value ?? next.alt);
       setBackgroundImage(backgroundEntry?.value ?? next.backgroundImage);
       setHeroImage(heroImageEntry?.value ?? next.heroImage);
-      setAnimation(animationEntry?.value ?? next.animation ?? "default");
+      setAnimation(animationEntry?.value ?? next.animation ?? "");
+      setAnimationType(next.animationType ?? "preset");
 
       // Image dimension settings
       setImageWidth((imageOptions.width as string) ?? next.imageWidth ?? "");
@@ -427,7 +440,7 @@ export default function AdminEditor({
     let replacement = "";
     if (tag === "bold") replacement = `<strong>${selectedText}</strong>`;
     else if (tag === "italic") replacement = `<em>${selectedText}</em>`;
-    else if (tag === "accent") replacement = `<span class="text-slate-900">${selectedText}</span>`;
+    else if (tag === "accent") replacement = `<span class="text-[#008fd3]">${selectedText}</span>`;
 
     const nextHtml = html.slice(0, start) + replacement + html.slice(end);
     setHtml(nextHtml);
@@ -617,12 +630,13 @@ export default function AdminEditor({
 
     // Animation Override
     if (selection.animationSelector) {
-      const saved = existing("attribute", "data-admin-animation", selection.animationSelector);
+      const animationAttribute = selection.animationAttribute || "data-admin-animation";
+    const saved = existing("attribute", animationAttribute, selection.animationSelector);
       entries.push({
-        id: saved?.id ?? entryId({ ...selection, selector: selection.animationSelector }, "attribute", "data-admin-animation"),
+        id: saved?.id ?? entryId({ ...selection, selector: selection.animationSelector }, "attribute", animationAttribute),
         selector: selection.animationSelector,
         kind: "attribute",
-        attribute: "data-admin-animation",
+        attribute: animationAttribute,
         value: animation,
         match: saved?.match ?? selection.animation,
         label: `${selection.sectionLabel} animation`,
@@ -635,7 +649,7 @@ export default function AdminEditor({
   function validate(entries: ContentEntry[]): string | null {
     if (!selection) return "Select an element in the preview first.";
     if (!entries.length) return "This element has no editable fields.";
-    if (entries.some((entry) => !entry.value.trim())) return "Empty content cannot be saved.";
+    if (entries.some((entry) => !entry.value.trim() && !(entry.kind === "attribute" && (entry.attribute === "src" || entry.attribute === "data-media-src" || entry.attribute === "data-admin-animation")))) return "Empty content cannot be saved.";
     if (href && !urlValid(href)) return "Enter a valid link URL or site-relative path.";
     if (src && !urlValid(src, true)) return "Enter a valid image URL or site-relative path.";
     if (backgroundImage && !urlValid(backgroundImage, true)) return "Enter a valid background image URL or site-relative path.";
@@ -783,7 +797,7 @@ export default function AdminEditor({
         <div className={`admin-notice ${notice.type}`} role="status">
           <span>{notice.text}</span>
           <button type="button" onClick={() => setNotice(null)} aria-label="Dismiss notification">
-            ×
+            &times;
           </button>
         </div>
       )}
@@ -854,7 +868,7 @@ export default function AdminEditor({
             <div className="admin-preview-bar">
               <span>Interactive Page Preview (Click any element to edit)</span>
               <a href={route} target="_blank" rel="noreferrer">
-                Open full page ↗
+                Open full page
               </a>
             </div>
             <iframe
@@ -869,7 +883,6 @@ export default function AdminEditor({
           <aside className="admin-editor-panel" style={{ overflowY: "auto", maxHeight: "calc(100vh - 65px)" }}>
             {!selection ? (
               <div className="admin-empty-state">
-                <span>✦</span>
                 <h2>Select content to edit</h2>
                 <p>Click any heading, hero image, hero animation, graphic, button, or section in the preview window.</p>
               </div>
@@ -888,9 +901,6 @@ export default function AdminEditor({
                 >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span style={{ fontSize: "18px" }}>
-                        {selection.tag === "img" || selection.heroImageSelector ? "🎯" : selection.animationSelector ? "✨" : "📌"}
-                      </span>
                       <div>
                         <strong style={{ display: "block", fontSize: "13px", color: "#1e293b" }}>
                           {selection.tag === "img" || selection.heroImageSelector
@@ -914,126 +924,27 @@ export default function AdminEditor({
                         color: selection.tag === "img" || selection.heroImageSelector ? "#92400e" : "#0f766e",
                       }}
                     >
-                      ✓ Active
+                      Active
                     </span>
                   </div>
                 </div>
 
                 {/* Sub-Navigation Tabs */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "4px",
-                    borderBottom: "1px solid #e2e8f0",
-                    paddingBottom: "8px",
-                    marginBottom: "14px",
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("content")}
-                    style={{
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      fontSize: "11.5px",
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: "pointer",
-                      background: activeTab === "content" ? "#087b71" : "#f1f5f9",
-                      color: activeTab === "content" ? "#fff" : "#475569",
-                    }}
-                  >
-                    📝 Text & Link
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("image")}
-                    style={{
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      fontSize: "11.5px",
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: "pointer",
-                      background: activeTab === "image" ? "#ee9e1e" : "#f1f5f9",
-                      color: activeTab === "image" ? "#fff" : "#475569",
-                    }}
-                  >
-                    🖼️ Image & Dimensions
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("animation")}
-                    style={{
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      fontSize: "11.5px",
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: "pointer",
-                      background: activeTab === "animation" ? "#6366f1" : "#f1f5f9",
-                      color: activeTab === "animation" ? "#fff" : "#475569",
-                    }}
-                  >
-                    ✨ Hero Animation
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("style")}
-                    style={{
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      fontSize: "11.5px",
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: "pointer",
-                      background: activeTab === "style" ? "#087b71" : "#f1f5f9",
-                      color: activeTab === "style" ? "#fff" : "#475569",
-                    }}
-                  >
-                    🎨 Typography & Style
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("section")}
-                    style={{
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      fontSize: "11.5px",
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: "pointer",
-                      background: activeTab === "section" ? "#087b71" : "#f1f5f9",
-                      color: activeTab === "section" ? "#fff" : "#475569",
-                    }}
-                  >
-                    📐 Section Sizing
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("add")}
-                    style={{
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      fontSize: "11.5px",
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: "pointer",
-                      background: activeTab === "add" ? "#087b71" : "#f1f5f9",
-                      color: activeTab === "add" ? "#fff" : "#475569",
-                    }}
-                  >
-                    ➕ Add
-                  </button>
+                <div className="mb-3 flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+                  {editorTabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${activeTab === tab.id ? "bg-[#087b71] text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
 
-                {/* ── TAB 1: TEXT CONTENT & LINK ─────────────────────── */}
+
+                {/* Tab 1: Text content and link */}
                 {activeTab === "content" && (
                   <div>
                     {selection.tag !== "img" && selection.html !== "" && (
@@ -1057,7 +968,7 @@ export default function AdminEditor({
                                 cursor: "pointer",
                               }}
                             >
-                              🧹 Remove HTML Tags
+                              Remove HTML Tags
                             </button>
                           )}
                         </div>
@@ -1103,7 +1014,7 @@ export default function AdminEditor({
                           <button
                             type="button"
                             onClick={() => handleWrapTag("accent")}
-                            style={{ padding: "2px 7px", fontSize: "11px", fontWeight: 600, border: "1px solid #cfd8e1", borderRadius: "4px", background: "#fff", color: "#0284c7", cursor: "pointer" }}
+                            style={{ padding: "2px 7px", fontSize: "11px", fontWeight: 600, border: "1px solid #cfd8e1", borderRadius: "4px", background: "#fff", color: "#008fd3", cursor: "pointer" }}
                           >
                             Accent
                           </button>
@@ -1127,7 +1038,7 @@ export default function AdminEditor({
                   </div>
                 )}
 
-                {/* ── TAB 2: IMAGE & HERO SECTION MEDIA + DIMENSIONS ─── */}
+                {/* Tab 2: Image and section media */}
                 {activeTab === "image" && (
                   <div>
                     {/* Selected Image Upload */}
@@ -1175,7 +1086,6 @@ export default function AdminEditor({
                             gap: "8px",
                           }}
                         >
-                          <span style={{ fontSize: "16px" }}>🎯</span>
                           <strong style={{ fontSize: "12px", color: "#92400e" }}>
                             Hero Image Layer Available
                           </strong>
@@ -1294,87 +1204,31 @@ export default function AdminEditor({
                   </div>
                 )}
 
-                {/* ── TAB 3: HERO ANIMATIONS & EFFECTS ───────────────── */}
-                {activeTab === "animation" && (
-                  <div style={{ padding: "12px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                    <div
-                      style={{
-                        padding: "8px 12px",
-                        background: "#eef2ff",
-                        borderRadius: "8px",
-                        border: "1px solid #c7d2fe",
-                        marginBottom: "12px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <span style={{ fontSize: "16px" }}>✨</span>
-                        <div>
-                          <strong style={{ display: "block", fontSize: "12px", color: "#3730a3" }}>
-                            Hero Section Animation
-                          </strong>
-                          <small style={{ color: "#6366f1", fontSize: "11px" }}>
-                            Current: <strong>{animation}</strong>
-                          </small>
-                        </div>
-                      </div>
-                      <span style={{ padding: "2px 8px", background: "#6366f1", color: "#fff", borderRadius: "999px", fontSize: "11px", fontWeight: 700 }}>
-                        ✓ Selected
-                      </span>
+                {/* Tab 3: Animation */}
+                {activeTab === "animation" && selection.animationSelector && (
+                  animationType === "preset" ? (
+                    <div className="rounded-xl border border-slate-200 bg-white p-3">
+                      <p className="admin-eyebrow">Animation</p>
+                      <select className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" value={animation} onChange={(event) => handleSelectAnimation(event.target.value)}>
+                        <option value="">No animation</option>
+                        <option value="default">Original dynamic animation</option>
+                        <option value="subtle">Subtle smooth motion</option>
+                        <option value="glow">Ambient glow</option>
+                        <option value="grid">Moving grid</option>
+                        <option value="off">Animation off</option>
+                      </select>
                     </div>
-
-                    <p className="admin-eyebrow" style={{ color: "#6366f1", marginBottom: "8px" }}>
-                      Choose Visual Motion Preset
-                    </p>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      {[
-                        { id: "default", label: "🌟 Original Dynamic Animation", desc: "Full motion effects, particle meshes and interactive gradients" },
-                        { id: "subtle", label: "🌊 Subtle Smooth Motion", desc: "Slower, relaxing animations with gentle floating transitions" },
-                        { id: "glow", label: "💡 Ambient Glow Effect", desc: "Warm radial breathing glow highlight in hero backdrop" },
-                        { id: "grid", label: "🌐 Tech Moving Grid", desc: "Animated futuristic tech grid overlay" },
-                        { id: "off", label: "🚫 Animation Off (Clean & Static)", desc: "Completely disables all background movement" },
-                      ].map((preset) => {
-                        const isCurrent = animation === preset.id;
-                        return (
-                          <button
-                            key={preset.id}
-                            type="button"
-                            onClick={() => handleSelectAnimation(preset.id)}
-                            style={{
-                              padding: "10px 12px",
-                              borderRadius: "8px",
-                              textAlign: "left",
-                              border: isCurrent ? "2px solid #6366f1" : "1px solid #e2e8f0",
-                              background: isCurrent ? "#eef2ff" : "#ffffff",
-                              cursor: "pointer",
-                              transition: "all 0.15s ease",
-                              boxShadow: isCurrent ? "0 2px 8px rgba(99, 102, 241, 0.2)" : "none",
-                            }}
-                          >
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                              <strong style={{ fontSize: "12.5px", color: isCurrent ? "#3730a3" : "#1e293b" }}>
-                                {preset.label}
-                              </strong>
-                              {isCurrent && (
-                                <span style={{ fontSize: "11px", fontWeight: 700, color: "#6366f1", background: "#fff", padding: "2px 6px", borderRadius: "4px", border: "1px solid #c7d2fe" }}>
-                                  ✓ Active
-                                </span>
-                              )}
-                            </div>
-                            <p style={{ margin: "3px 0 0", fontSize: "11px", color: "#64748b" }}>
-                              {preset.desc}
-                            </p>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  ) : (
+                    <AnimationUploadField
+                      source={animation}
+                      type={animationType}
+                      onUploaded={(path) => { setStagedUploads((current) => current.includes(path) ? current : [...current, path]); handleSelectAnimation(path); }}
+                      onRemove={() => handleSelectAnimation("")}
+                      onError={(text) => setNotice({ type: "error", text })}
+                    />
+                  )
                 )}
 
-                {/* ── TAB 4: ELEMENT TYPOGRAPHY & STYLES ─────────────── */}
                 {activeTab === "style" && (
                   <div style={{ padding: "12px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
                     <p className="admin-eyebrow" style={{ color: "#087b71", marginBottom: "8px" }}>
@@ -1473,7 +1327,7 @@ export default function AdminEditor({
                   </div>
                 )}
 
-                {/* ── TAB 5: SECTION DIMENSIONS & SIZING ─────────────── */}
+                {/* Tab 5: Section dimensions */}
                 {activeTab === "section" && (
                   <div className="admin-section-builder">
                     <p className="admin-eyebrow" style={{ color: "#087b71", marginBottom: "8px" }}>
@@ -1485,13 +1339,13 @@ export default function AdminEditor({
                         <label htmlFor="section-width">Section Width</label>
                         <select id="section-width" value={sectionWidth} onChange={(event) => setSectionWidth(event.target.value)}>
                           <option value="100%">Full width (100%)</option>
-                          <option value="1920px">Cinema — 1920px</option>
-                          <option value="1600px">Ultra Wide — 1600px</option>
-                          <option value="1440px">Wide — 1440px</option>
-                          <option value="1280px">Standard Max — 1280px</option>
-                          <option value="1140px">Compact — 1140px</option>
-                          <option value="960px">Narrow — 960px</option>
-                          <option value="760px">Focus — 760px</option>
+                          <option value="1920px">Cinema - 1920px</option>
+                          <option value="1600px">Ultra Wide - 1600px</option>
+                          <option value="1440px">Wide - 1440px</option>
+                          <option value="1280px">Standard Max - 1280px</option>
+                          <option value="1140px">Compact - 1140px</option>
+                          <option value="960px">Narrow - 960px</option>
+                          <option value="760px">Focus - 760px</option>
                         </select>
                       </div>
 
@@ -1574,7 +1428,7 @@ export default function AdminEditor({
                   </div>
                 )}
 
-                {/* ── TAB 6: ADD NEW CONTENT & SECTIONS ───────────────── */}
+                {/* Tab 6: Add content */}
                 {activeTab === "add" && (
                   <div>
                     <div className="admin-field">
@@ -1584,7 +1438,7 @@ export default function AdminEditor({
                         rows={5}
                         value={addedContent}
                         onChange={(event) => setAddedContent(event.target.value)}
-                        placeholder={'<h2>New heading</h2>\n<p>New content...</p>\n<a href="/contact" class="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white bg-white hover:bg-[#0369a1]">Learn more</a>'}
+                        placeholder={'<h2>New heading</h2>\n<p>New content...</p>\n<a href="/contact" class="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white bg-[#008fd3] hover:bg-[#007bb8]">Learn more</a>'}
                       />
                       <small>Supports safe HTML headings, text, links, buttons, lists, and images.</small>
                     </div>
@@ -1604,7 +1458,7 @@ export default function AdminEditor({
                           className="admin-secondary-button"
                           onClick={() =>
                             setNewSection(
-                              '<section class="py-20 bg-[#050817] text-white border-b border-white/10">\n  <div class="max-w-7xl mx-auto px-5">\n    <h2 class="text-3xl font-bold">New Headline</h2>\n    <p class="mt-4 text-slate-300">Add detailed description here.</p>\n    <a href="/contact" class="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white bg-white hover:bg-[#0369a1] mt-6">Contact Us</a>\n  </div>\n</section>'
+                              '<section class="py-20 bg-[#050817] text-white border-b border-white/10">\n  <div class="max-w-7xl mx-auto px-5">\n    <h2 class="text-3xl font-bold">New Headline</h2>\n    <p class="mt-4 text-slate-300">Add detailed description here.</p>\n    <a href="/contact" class="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white bg-[#008fd3] hover:bg-[#007bb8] mt-6">Contact Us</a>\n  </div>\n</section>'
                             )
                           }
                         >

@@ -171,6 +171,9 @@ export function Metric({
   label,
   accent = "text-white",
   sub,
+  dark = false,
+  labelClassName,
+  subClassName,
 }: {
   to: number;
   suffix?: string;
@@ -178,6 +181,9 @@ export function Metric({
   label: string;
   accent?: string;
   sub?: string;
+  dark?: boolean;
+  labelClassName?: string;
+  subClassName?: string;
 }) {
   return (
     <div className="relative flex h-full flex-col justify-between">
@@ -185,8 +191,8 @@ export function Metric({
         <AnimatedCounter to={to} prefix={prefix} suffix={suffix} />
       </p>
       <div className="mt-3 flex flex-1 flex-col justify-end">
-        <p className="text-xs sm:text-sm font-semibold leading-snug text-white/90">{label}</p>
-        {sub && <p className="mt-1 text-[11px] sm:text-xs leading-4 text-white/50">{sub}</p>}
+        <p className={`text-xs sm:text-sm font-semibold leading-snug ${labelClassName ?? (dark ? "text-white/90" : "text-black")}`}>{label}</p>
+        {sub && <p className={`mt-1 text-[11px] sm:text-xs leading-4 ${subClassName ?? (dark ? "text-white/50" : "text-slate-600")}`}>{sub}</p>}
       </div>
     </div>
   );

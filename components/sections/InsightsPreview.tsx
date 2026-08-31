@@ -1,12 +1,18 @@
 "use client";
 
 import Container from "@/components/ui/Container";
-import { featuredBlogs, featuredVideos, type FeaturedBlogItem, type FeaturedVideoItem } from "@/lib/site-data";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, CalendarDays, ExternalLink, Newspaper, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import type {
+  InsightsSectionData,
+  FeaturedBlogItemData,
+  FeaturedVideoItemData,
+} from "@/lib/services/homepage.service";
+
+export type InsightsPreviewProps = InsightsSectionData;
 
 type InsightTab = "blogs" | "videos";
 type InsightTabItem = { id: InsightTab; label: string; Icon: LucideIcon; url: string };
@@ -19,16 +25,19 @@ function YoutubePlayIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-const insightTabs = [
-  { id: "blogs", label: "Blogs", Icon: Newspaper, url: "/blogs" },
-  { id: "videos", label: "Videos", Icon: YoutubePlayIcon as unknown as LucideIcon, url: "/videos" },
-] satisfies InsightTabItem[];
-
 function getYoutubeThumbnail(youtubeId: string) {
   return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
 }
 
-function BlogCard({ blog, index }: { blog: FeaturedBlogItem; index: number }) {
+function BlogCard({
+  blog,
+  index,
+  readBlogText,
+}: {
+  blog: FeaturedBlogItemData;
+  index: number;
+  readBlogText?: string;
+}) {
   return (
     <motion.article
       initial={{ opacity: 0, y: 22 }}
@@ -38,19 +47,21 @@ function BlogCard({ blog, index }: { blog: FeaturedBlogItem; index: number }) {
       className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-sm transition-all duration-300 hover:border-slate-400 hover:shadow-md"
     >
       <Link href={blog.href} className="no-underline relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-slate-900">
-        <Image src={blog.image} alt={blog.imageAlt} fill sizes="(min-width: 1280px) 25vw, (min-width: 768px) 50vw, 100vw" className="object-cover scale-[1.04]" />
+        <Image src={blog.image} alt={blog.imageAlt || blog.title} fill sizes="(min-width: 1280px) 25vw, (min-width: 768px) 50vw, 100vw" className="object-cover scale-[1.04]" />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(14,26,44,0.7)] via-transparent to-transparent" />
-        <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-bold text-white shadow-md">
-          <CalendarDays className="size-3 text-white" />
-          <span>{blog.date}</span>
-        </span>
+        {blog.date && (
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-bold text-white shadow-md">
+            <CalendarDays className="size-3 text-white" />
+            <span>{blog.date}</span>
+          </span>
+        )}
       </Link>
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <h3 className="line-clamp-2 text-sm sm:text-base font-bold leading-snug text-slate-900 transition-colors">{blog.title}</h3>
         <p className="mt-2 line-clamp-2 flex-1 text-xs leading-relaxed text-slate-600">{blog.description}</p>
         <div className="mt-auto pt-4">
           <Link href={blog.href} className="inline-flex w-fit items-center gap-1.5 text-xs font-bold text-cyan-600 transition-all duration-200 group-hover:gap-2 group-hover:text-cyan-700 sm:text-sm">
-            Read blog <ArrowRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+            {readBlogText || "Read blog"} <ArrowRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
         </div>
       </div>
@@ -58,7 +69,15 @@ function BlogCard({ blog, index }: { blog: FeaturedBlogItem; index: number }) {
   );
 }
 
-function VideoCard({ video, index }: { video: FeaturedVideoItem; index: number }) {
+function VideoCard({
+  video,
+  index,
+  watchVideoText,
+}: {
+  video: FeaturedVideoItemData;
+  index: number;
+  watchVideoText?: string;
+}) {
   return (
     <motion.article
       initial={{ opacity: 0, y: 22 }}
@@ -82,7 +101,7 @@ function VideoCard({ video, index }: { video: FeaturedVideoItem; index: number }
         <p className="mt-2 line-clamp-2 flex-1 text-xs leading-relaxed text-slate-600">{video.description}</p>
         <div className="mt-auto pt-4">
           <a href={video.youtubeUrl} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-1.5 text-xs font-bold text-cyan-600 transition-all duration-200 group-hover:gap-2 group-hover:text-cyan-700 sm:text-sm">
-            Watch video <ExternalLink className="size-3.5" />
+            {watchVideoText || "Watch video"} <ExternalLink className="size-3.5" />
           </a>
         </div>
       </div>
@@ -90,22 +109,41 @@ function VideoCard({ video, index }: { video: FeaturedVideoItem; index: number }
   );
 }
 
-export default function InsightsPreview() {
+export default function InsightsPreview({
+  eyebrow,
+  title,
+  description,
+  blogsTabLabel = "Blogs",
+  videosTabLabel = "Videos",
+  viewAllBlogsText = "View all blogs",
+  viewAllVideosText = "View all videos",
+  readBlogText = "Read blog",
+  watchVideoText = "Watch video",
+  blogs = [],
+  videos = [],
+}: InsightsPreviewProps) {
   const [activeTab, setActiveTab] = useState<InsightTab>("blogs");
-  const visibleBlogs = featuredBlogs.filter((blog) => blog.showOnHome);
-  const visibleVideos = featuredVideos.filter((video) => video.showOnHome);
+  const visibleBlogs = blogs.filter((blog) => blog.showOnHome !== false);
+  const visibleVideos = videos.filter((video) => video.showOnHome !== false);
+
+  const insightTabs = [
+    { id: "blogs", label: blogsTabLabel, Icon: Newspaper, url: "/blogs" },
+    { id: "videos", label: videosTabLabel, Icon: YoutubePlayIcon as unknown as LucideIcon, url: "/videos" },
+  ] satisfies InsightTabItem[];
 
   return (
     <section id="insights-preview" className="relative isolate overflow-hidden bg-[#a8c0f1] bg-[radial-gradient(circle_at_15%_20%,#85a1da_0%,transparent_45%),radial-gradient(circle_at_70%_15%,#9eb6ce_0%,transparent_50%),radial-gradient(circle_at_35%_65%,#9cafda_0%,transparent_55%),radial-gradient(circle_at_85%_70%,#97b3f0_0%,transparent_50%),radial-gradient(circle_at_10%_90%,#c2dbec_0%,transparent_40%)] bg-blend-screen py-12 sm:py-14 lg:py-16 text-slate-900 border-t border-slate-200">
       <Container className="relative">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-slate-900">Insights</span>
+            <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-slate-900">
+              {eyebrow}
+            </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
-              Practical SAP thinking in blogs and videos.
+              {title}
             </h2>
             <p className="mt-2 max-w-xl text-xs leading-relaxed text-slate-600 sm:text-sm sm:leading-6">
-              Explore SAP, data, cloud, finance, and transformation ideas from the Trijotech team.
+              {description}
             </p>
           </div>
 
@@ -136,7 +174,7 @@ export default function InsightsPreview() {
               href={activeTab === "blogs" ? "/blogs" : "/videos"}
               className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-900 shadow-xs transition-all duration-200 hover:bg-slate-50 sm:text-sm"
             >
-              {activeTab === "blogs" ? "View all blogs" : "View all videos"} <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+              {activeTab === "blogs" ? viewAllBlogsText : viewAllVideosText} <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
           </div>
         </div>
@@ -145,13 +183,13 @@ export default function InsightsPreview() {
           {activeTab === "blogs" ? (
             <motion.div key="blogs" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }} transition={{ duration: 0.24, ease: "easeOut" }} className="mt-7 sm:mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4 items-stretch">
               {visibleBlogs.map((blog, index) => (
-                <BlogCard key={blog.href} blog={blog} index={index} />
+                <BlogCard key={blog.href || blog.title} blog={blog} index={index} readBlogText={readBlogText} />
               ))}
             </motion.div>
           ) : (
             <motion.div key="videos" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }} transition={{ duration: 0.24, ease: "easeOut" }} className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {visibleVideos.map((video, index) => (
-                <VideoCard key={video.youtubeId} video={video} index={index} />
+                <VideoCard key={video.youtubeId || video.title} video={video} index={index} watchVideoText={watchVideoText} />
               ))}
             </motion.div>
           )}

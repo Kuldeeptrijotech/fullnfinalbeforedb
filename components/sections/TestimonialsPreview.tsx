@@ -1,11 +1,13 @@
 "use client";
 
 import Container from "@/components/ui/Container";
-import { testimonials, type TestimonialItem } from "@/lib/site-data";
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import { ArrowLeft, ArrowRight, Quote, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState, type TouchEvent } from "react";
+import type { TestimonialsSectionData, TestimonialItemData } from "@/lib/services/homepage.service";
+
+export type TestimonialsPreviewProps = TestimonialsSectionData;
 
 const AUTO_ROTATE_MS = 6500;
 
@@ -22,13 +24,18 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-export default function TestimonialsPreview() {
-  const visibleTestimonials = testimonials.filter((item) => item.showOnHome);
+export default function TestimonialsPreview({
+  eyebrow,
+  title,
+  description,
+  items = [],
+}: TestimonialsPreviewProps) {
+  const visibleTestimonials = items.filter((item) => item.showOnHome !== false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [cardsToShow, setCardsToShow] = useState(3);
   const sectionRef = useRef<HTMLElement>(null);
   const sectionInView = useInView(sectionRef, { amount: 0.05 });
-  const [selectedTestimonial, setSelectedTestimonial] = useState<TestimonialItem | null>(null);
+  const [selectedTestimonial, setSelectedTestimonial] = useState<TestimonialItemData | null>(null);
 
   // Touch swipe handling
   const touchStartX = useRef<number | null>(null);
@@ -112,13 +119,14 @@ export default function TestimonialsPreview() {
       <Container className="relative">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#38bdf8]">Testimonials</span>
+            <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#38bdf8]">
+              {eyebrow}
+            </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
-              Trusted by teams modernizing with SAP.
+              {title}
             </h2>
             <p className="mt-2 max-w-xl text-xs leading-relaxed text-slate-300 sm:text-sm sm:leading-6">
-              Hear from clients who rely on Trijotech for practical delivery, clear communication,
-              and measurable business outcomes.
+              {description}
             </p>
           </div>
 

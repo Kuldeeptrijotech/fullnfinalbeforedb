@@ -48,7 +48,6 @@ const dropdownHeroImages: Record<string, string> = {
   "/blogs": "/assets/heroes/blogs-blue.png",
   "/case-studies": "/assets/case-studies/financial-analysis-team.png",
   "/videos": "/assets/heroes/videos-camera-hero.png",
-  "/corporate": "/assets/about/trijotech-team-collaboration-blue.png",
   "/about-us": "/assets/about/trijotech-team-collaboration-blue.png",
   "/careers": "/assets/heroes/careers-generated-v2.png",
   "/contact": "/assets/heroes/contact-generated-v2.png",
@@ -251,6 +250,7 @@ export default function Header() {
               width={168}
               height={44}
               priority
+              style={{ width: "auto" }}
               className="h-10 sm:h-11 w-auto object-contain transition-transform duration-200 hover:scale-105"
             />
           </Link>

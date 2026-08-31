@@ -34,28 +34,28 @@ const metrics = [
 
 export default function AboutPillarsShowcase() {
   return (
-    <div className="about-pillar-shell relative isolate overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-7 shadow-xl">
-      {/* Decorative background glows */}
-      <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-slate-100 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-slate-100 blur-3xl" />
+    <div className="relative h-full">
+      <div aria-hidden className="pointer-events-none absolute -inset-4 -z-10 rounded-[2.5rem] bg-gradient-to-br from-white/15 via-[#3b82f6]/15 to-transparent blur-2xl" />
+      <div className="about-pillar-shell relative flex h-full flex-col overflow-hidden rounded-[2.5rem] border border-white/10 bg-[linear-gradient(150deg,#1a2336_0%,#162032_60%,#121927_100%)] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+      <div aria-hidden className="pointer-events-none absolute inset-0 tri-hex-grid opacity-30" />
 
       {/* Header chip */}
-      <div className="relative flex items-center justify-between border-b border-slate-200 pb-4">
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 text-white shadow-sm">
-            <Award className="h-4 w-4" />
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(150deg,#22d3ee,#2563eb)] text-white shadow-md shadow-blue-500/20">
+            <Award className="h-5 w-5" />
           </span>
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-900">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-white sm:text-sm">
             Delivery Pillars
           </span>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-900">
-          <Sparkles className="h-3 w-3 text-slate-900" /> Enterprise Excellence
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#93c5fd] bg-[#2563eb] px-3 py-1 text-[11px] font-bold text-white shadow-sm shadow-blue-950/30">
+          <Sparkles className="h-3.5 w-3.5 shrink-0 text-white" strokeWidth={2.75} /> Enterprise Excellence
         </span>
       </div>
 
       {/* 4 Pillars Grid */}
-      <div className="relative mt-5 grid gap-3 sm:grid-cols-2">
+      <div className="relative z-10 mt-6 grid flex-1 gap-4 sm:grid-cols-2">
         {pillars.map((pillar, i) => {
           const Icon = pillar.icon;
           return (
@@ -65,17 +65,18 @@ export default function AboutPillarsShowcase() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: i * 0.08 }}
-              className="about-pillar-card group flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-slate-50/80 p-5 transition-all duration-300 hover:border-slate-300 hover:bg-slate-100/80 hover:shadow-sm"
+              whileHover={{ y: -3, transition: { duration: 0.15 } }}
+              className="about-pillar-card group flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-all duration-300 hover:border-blue-400/50 hover:bg-white/[0.06]"
             >
               <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white shadow-xs">
-                  <Icon className="h-4 w-4" />
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#93c5fd] bg-[#2563eb] text-white shadow-md shadow-blue-950/25 transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#1d4ed8]">
+                  <Icon className="h-4 w-4 text-white" strokeWidth={2.5} />
                 </span>
-                <h3 className="text-sm font-bold leading-tight text-slate-900 sm:text-base">
+                <h3 className="text-sm font-bold leading-tight text-white sm:text-base">
                   {pillar.title}
                 </h3>
               </div>
-              <p className="mt-3 text-sm leading-6 text-slate-600">
+              <p className="mt-3 text-sm leading-6 text-slate-300">
                 {pillar.description}
               </p>
             </motion.div>
@@ -84,17 +85,18 @@ export default function AboutPillarsShowcase() {
       </div>
 
       {/* Metrics Banner */}
-      <div className="relative mt-5 grid grid-cols-3 gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+      <div className="relative z-10 mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-5 text-center">
         {metrics.map((m, i) => (
-          <div key={m.label} className={i !== 0 ? "border-l border-slate-200" : ""}>
-            <div className="text-base sm:text-lg font-extrabold text-slate-900">
+          <div key={m.label} className="rounded-xl border border-white/5 bg-white/[0.02] p-2.5">
+            <div className="text-base font-extrabold text-white sm:text-lg">
               {m.value}
             </div>
-            <div className="text-[10px] font-medium uppercase tracking-wider text-slate-600">
+            <div className="mt-0.5 text-[10px] font-medium uppercase tracking-wider text-slate-400">
               {m.label}
             </div>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );

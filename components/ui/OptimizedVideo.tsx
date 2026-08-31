@@ -37,7 +37,7 @@ export default function OptimizedVideo({
 
     const ensureSource = () => {
       if (video.getAttribute("src")) return;
-      video.src = src;
+      video.src = video.dataset.mediaSrc || src;
       video.load();
     };
 

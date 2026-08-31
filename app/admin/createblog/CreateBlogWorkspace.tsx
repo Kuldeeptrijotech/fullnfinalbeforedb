@@ -19,7 +19,7 @@ export default function CreateBlogWorkspace({ initialPosts }: { initialPosts: Bl
           <p>Write, design, preview, and publish from one focused workspace.</p>
         </div>
         <a href="/blogs" target="_blank" rel="noreferrer" className={styles.viewBlogs}>
-          View Live Blogs ↗
+          View Live Blogs
         </a>
       </header>
 

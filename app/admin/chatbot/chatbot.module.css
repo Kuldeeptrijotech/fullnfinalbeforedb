@@ -34,7 +34,7 @@
   height: 38px;
   place-items: center;
   border-radius: 10px;
-  background: linear-gradient(135deg, #17233d 0%, #087b71 100%);
+  background: linear-gradient(135deg, #17233d 0%, #0891b2 100%);
   color: #fff;
   font-size: 18px;
   font-weight: 800;
@@ -130,9 +130,9 @@
   justify-content: center;
   height: 38px;
   padding: 0 18px;
-  border: 1px solid #ee9e1e;
+  border: 1px solid #2563eb;
   border-radius: 9px;
-  background: #ee9e1e;
+  background: #2563eb;
   color: #fff;
   font-family: inherit;
   font-size: 13px;
@@ -144,8 +144,8 @@
 }
 
 .btnPrimary:hover {
-  background: #d98b12;
-  border-color: #d98b12;
+  background: #1d4ed8;
+  border-color: #1d4ed8;
 }
 
 .btnDanger {
@@ -182,7 +182,7 @@
   padding: 22px 28px;
   border: 1px solid #dfe5ea;
   border-radius: 18px;
-  background: linear-gradient(120deg, #17233d 0%, #223253 70%, #087b71 100%);
+  background: linear-gradient(120deg, #17233d 0%, #223253 70%, #0891b2 100%);
   box-shadow: 0 12px 32px rgba(23, 35, 61, 0.14);
   color: #fff;
 }
@@ -330,7 +330,7 @@
 }
 
 .searchInput:focus {
-  border-color: #087b71;
+  border-color: #0891b2;
   background: #fff;
   box-shadow: 0 0 0 3px rgba(8, 123, 113, 0.12);
 }
@@ -355,13 +355,13 @@
 }
 
 .entryItem:hover {
-  border-color: #087b71;
+  border-color: #0891b2;
   background: #f0fdfa;
   transform: translateX(2px);
 }
 
 .entryItem.active {
-  border-color: #ee9e1e;
+  border-color: #2563eb;
   background: #fffaf0;
   box-shadow: 0 4px 14px rgba(238, 158, 30, 0.12);
 }
@@ -397,7 +397,7 @@
 }
 
 .priorityBadge {
-  color: #087b71;
+  color: #0891b2;
   font-size: 11px;
   font-weight: 600;
 }
@@ -470,7 +470,7 @@
 .formField input:focus,
 .formField textarea:focus,
 .formField select:focus {
-  border-color: #087b71;
+  border-color: #0891b2;
   background: #fff;
   box-shadow: 0 0 0 3px rgba(8, 123, 113, 0.12);
 }
@@ -494,7 +494,7 @@
 .checkboxLabel input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #087b71;
+  accent-color: #0891b2;
   cursor: pointer;
 }
 
@@ -527,7 +527,7 @@
   display: inline-block;
   padding: 3px 8px;
   border-radius: 6px;
-  background: #087b71;
+  background: #0891b2;
   color: #fff;
   font-size: 10px;
   font-weight: 800;

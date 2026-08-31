@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Reveal, SlideReveal, StaggerReveal, StaggerRevealItem } from "@/components/motion/Reveal";
 import ServiceHero from "@/components/services/ServiceHero";
-import { Glass, Metric, SectionLabel } from "@/components/services/service-ui";
+import { Glass, SectionLabel } from "@/components/services/service-ui";
 import Container from "@/components/ui/Container";
 
 
@@ -40,6 +40,33 @@ const STACK = [
 ];
 
 const EXTENSIONS = ["Consolidation", "Planning", "Analytics", "Automation", "Integrations", "Profitability"];
+
+const CONSULTING_PILLARS = [
+  {
+    tag: "Advisory & Roadmap",
+    title: "S/4HANA Transformation",
+    desc: "Tailored migration pathways (Greenfield, Brownfield, or Selective) with clear ROI modeling and clean core architecture.",
+    icon: Target,
+  },
+  {
+    tag: "Process Optimization",
+    title: "Standardized Operations",
+    desc: "Align enterprise workflows with SAP standard best practices, reducing complexity and costly custom code.",
+    icon: Cog,
+  },
+  {
+    tag: "Decision Intelligence",
+    title: "Consolidated Analytics",
+    desc: "Unify financial reporting, group consolidation, and real-time FP&A forecasts with SAP Analytics Cloud.",
+    icon: Database,
+  },
+  {
+    tag: "Delivery Governance",
+    title: "De-risked Execution",
+    desc: "Rigorous testing, cutover management, data reconciliation, and user adoption for predictable go-lives.",
+    icon: ShieldCheck,
+  },
+];
 
 export default function SapImplementationPage({ offerings, impacts }: { offerings: ServiceItem[]; impacts: ServiceItem[] }) {
   return (
@@ -90,27 +117,32 @@ export default function SapImplementationPage({ offerings, impacts }: { offering
             </StaggerReveal>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 items-stretch">
-            <Reveal className="h-full">
-              <div className="h-full rounded-2xl border border-slate-200 bg-white text-slate-900 p-5 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md sm:p-6">
-                <Metric to={9} suffix="+" label="Years of SAP expertise" accent="text-slate-900" />
-              </div>
-            </Reveal>
-            <Reveal delay={0.1} className="h-full">
-              <div className="h-full rounded-2xl border border-slate-200 bg-white text-slate-900 p-5 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md sm:p-6">
-                <Metric to={100} suffix="+" label="Projects delivered" accent="text-slate-900" />
-              </div>
-            </Reveal>
-            <Reveal delay={0.2} className="h-full">
-              <div className="h-full rounded-2xl border border-slate-200 bg-white text-slate-900 p-5 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md sm:p-6">
-                <Metric to={100} suffix="%" label="Go-live success rate" accent="text-slate-900" />
-              </div>
-            </Reveal>
-            <Reveal delay={0.3} className="h-full">
-              <div className="h-full rounded-2xl border border-slate-200 bg-white text-slate-900 p-5 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md sm:p-6">
-                <Metric to={30} suffix="+" label="Founder industry expertise" accent="text-slate-900" />
-              </div>
-            </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-stretch">
+            {CONSULTING_PILLARS.map((p, idx) => {
+              const Icon = p.icon;
+              return (
+                <Reveal key={p.title} delay={idx * 0.08} className="h-full">
+                  <div className="h-full rounded-2xl border border-slate-200 bg-white text-slate-900 p-5 sm:p-6 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-900">
+                          <Icon className="h-4.5 w-4.5 text-slate-900" />
+                        </span>
+                        <span className="rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                          {p.tag}
+                        </span>
+                      </div>
+                      <h3 className="mt-4 text-base sm:text-lg font-bold text-slate-900 leading-snug">
+                        {p.title}
+                      </h3>
+                      <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">
+                        {p.desc}
+                      </p>
+                    </div>
+                  </div>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>

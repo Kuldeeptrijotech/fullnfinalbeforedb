@@ -1,10 +1,23 @@
 @import "tailwindcss";
+/* Cloudflare Turnstile form states */
+.turnstile-shell {
+  display: flex; min-height: 76px; width: 100%; flex-direction: column;
+  align-items: center; justify-content: center; gap: .6rem; overflow: hidden;
+  border: 1px solid rgb(226 232 240); border-radius: 1rem;
+  background: rgba(248, 250, 252, .8); padding: .85rem;
+}
+.turnstile-widget { width: min(100%, 420px); }
+.turnstile-widget > div { margin-inline: auto; }
+.turnstile-notice { display: inline-flex; align-items: center; gap: .4rem; margin: 0; color: rgb(71 85 105); font-size: .75rem; font-weight: 600; line-height: 1.4; text-align: center; }
+.turnstile-notice-success { color: rgb(4 120 87); }
+.turnstile-notice-error { color: rgb(190 18 60); }
+@media (max-width: 380px) { .turnstile-shell { align-items: stretch; padding-inline: .5rem; } }
 
 @theme {
   --font-sans: var(--font-poppins, "Poppins"), "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-poppins: var(--font-poppins, "Poppins"), "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* ── Trijotech brand palette (Pure White / Dark Slate) ── */
+  /* â”€â”€ Trijotech brand palette (Pure White / Dark Slate) â”€â”€ */
   --color-tri-1: #0891b2;
   --color-tri-2: #22d3ee;
   --color-tri-3: #2563eb;
@@ -33,7 +46,7 @@ p, a, span, li, label, div {
   min-height: 100dvh;
 }
 
-/* ── Core Keyframe Animations ── */
+/* â”€â”€ Core Keyframe Animations â”€â”€ */
 @keyframes float {
   0%, 100% { transform: translateY(0px) scale(1); }
   40% { transform: translateY(-22px) scale(1.025); }
@@ -66,13 +79,13 @@ p, a, span, li, label, div {
   100% { transform: scale(2.2); opacity: 0; }
 }
 
-/* ── Animation helper classes ── */
+/* â”€â”€ Animation helper classes â”€â”€ */
 .animate-float { animation: float 6.5s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
 .animate-float-slow { animation: float-slow 9s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
 .animate-float-reverse { animation: float-reverse 7.5s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
 .tri-spin-slow { animation: tri-spin-slow 24s linear infinite; }
 
-/* ── Atmospheric background utilities ── */
+/* â”€â”€ Atmospheric background utilities â”€â”€ */
 .tri-mesh {
   background:
     radial-gradient(65% 55% at 15% 15%, rgba(255, 255, 255, 0.08), transparent 65%),
@@ -102,7 +115,7 @@ p, a, span, li, label, div {
   pointer-events: none;
 }
 
-/* ── Hide scrollbar utility across all browsers ── */
+/* â”€â”€ Hide scrollbar utility across all browsers â”€â”€ */
 .no-scrollbar::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
@@ -113,7 +126,7 @@ p, a, span, li, label, div {
   scrollbar-width: none !important;
 }
 
-/* ── Admin Editor Live Preview Outline & Selection Helpers ── */
+/* â”€â”€ Admin Editor Live Preview Outline & Selection Helpers â”€â”€ */
 .admin-preview-mode .admin-edit-hover {
   outline: 2px dashed #22d3ee !important;
   outline-offset: 3px !important;
@@ -134,7 +147,7 @@ p, a, span, li, label, div {
 }
 
 .admin-preview-mode .admin-edit-selected::after {
-  content: "✓ SELECTED";
+  content: "âœ“ SELECTED";
   position: absolute;
   z-index: 2147483647;
   right: 0;
@@ -154,7 +167,7 @@ p, a, span, li, label, div {
   outline: 3px solid #f59e0b !important;
 }
 .admin-preview-mode .admin-edit-selected[data-admin-selected-type="hero-image"]::after {
-  content: "🎯 HERO IMAGE SELECTED";
+  content: "ðŸŽ¯ HERO IMAGE SELECTED";
   background: #f59e0b;
   color: #111827;
 }
@@ -163,7 +176,7 @@ p, a, span, li, label, div {
   outline: 3px solid #087b71 !important;
 }
 .admin-preview-mode .admin-edit-selected[data-admin-selected-type="hero-section"]::after {
-  content: "✨ HERO SECTION / ANIMATION SELECTED";
+  content: "âœ¨ HERO SECTION / ANIMATION SELECTED";
   background: #087b71;
   color: #ffffff;
 }
@@ -172,7 +185,7 @@ p, a, span, li, label, div {
   outline: 3px solid #6366f1 !important;
 }
 .admin-preview-mode .admin-edit-selected[data-admin-selected-type="animation"]::after {
-  content: "✨ HERO ANIMATION SELECTED";
+  content: "âœ¨ HERO ANIMATION SELECTED";
   background: #6366f1;
   color: #ffffff;
 }
@@ -181,12 +194,12 @@ p, a, span, li, label, div {
   outline: 3px solid #0284c7 !important;
 }
 .admin-preview-mode .admin-edit-selected[data-admin-selected-type="image"]::after {
-  content: "🖼️ IMAGE SELECTED";
+  content: "ðŸ–¼ï¸ IMAGE SELECTED";
   background: #0284c7;
   color: #ffffff;
 }
 
-/* ── Public Chatbot Window ── */
+/* â”€â”€ Public Chatbot Window â”€â”€ */
 .trijo-chat-window {
   width: min(430px, calc(100vw - 32px));
   height: min(650px, calc(100dvh - 130px));
@@ -315,11 +328,11 @@ p, a, span, li, label, div {
   background: rgb(34 211 238 / 14%);
 }
 
-.trijo-chat-window > form {
+.trijo-chat-window > form.trijo-chat-composer {
   background: #0b1020;
 }
 
-.trijo-chat-window textarea {
+.trijo-chat-composer textarea {
   min-height: 46px;
   max-height: 120px;
   flex: 1;
@@ -334,10 +347,10 @@ p, a, span, li, label, div {
   outline: none;
 }
 
-.trijo-chat-window textarea::placeholder { color: rgb(255 255 255 / 35%); }
-.trijo-chat-window textarea:focus { border-color: rgb(34 211 238 / 55%); box-shadow: 0 0 0 3px rgb(34 211 238 / 10%); }
+.trijo-chat-composer textarea::placeholder { color: rgb(255 255 255 / 35%); }
+.trijo-chat-composer textarea:focus { border-color: rgb(34 211 238 / 55%); box-shadow: 0 0 0 3px rgb(34 211 238 / 10%); }
 
-.trijo-chat-window > form > button {
+.trijo-chat-window > form.trijo-chat-composer > button {
   display: grid;
   width: 46px;
   height: 46px;
@@ -351,8 +364,8 @@ p, a, span, li, label, div {
   transition: background-color 180ms, transform 180ms, opacity 180ms;
 }
 
-.trijo-chat-window > form > button:hover:not(:disabled) { background: #67e8f9; transform: translateY(-1px); }
-.trijo-chat-window > form > button:disabled { cursor: not-allowed; opacity: .35; }
+.trijo-chat-window > form.trijo-chat-composer > button:hover:not(:disabled) { background: #67e8f9; transform: translateY(-1px); }
+.trijo-chat-window > form.trijo-chat-composer > button:disabled { cursor: not-allowed; opacity: .35; }
 
 .trijo-chat-note {
   margin: 0;
@@ -396,6 +409,21 @@ p, a, span, li, label, div {
   .trijo-chat-window > header { padding-top: max(14px, env(safe-area-inset-top)); }
   .trijo-chat-messages { padding: 18px 14px; }
   .trijo-message > div { max-width: 90%; }
-  .trijo-chat-window > form { padding: 11px 12px; }
+  .trijo-chat-window > form.trijo-chat-composer { padding: 11px 12px; }
   .trijo-chat-note { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+}
+/* Global section entrance on scroll */
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-reveal-enabled .scroll-reveal-section {
+    opacity: 0;
+    transform: translate3d(0, 56px, 0);
+    transition: opacity 720ms cubic-bezier(.22, 1, .36, 1), transform 820ms cubic-bezier(.22, 1, .36, 1);
+    transition-delay: var(--scroll-reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .scroll-reveal-enabled .scroll-reveal-section.is-scroll-revealed {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    will-change: auto;
+  }
 }

@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
-import { isAdminRequest } from "@/app/lib/admin-auth";
+import { isAdminRequest, verifyAdminSession, SESSION_COOKIE } from "@/app/lib/admin-auth";
 import { defaultBlogBlockStyle, defaultFeaturedImageStyle, readBlogPosts, uniqueSlug, validateBlogPost, writeBlogStore } from "@/app/lib/blog-store";
+import { logAuditEvent } from "@/app/lib/services/audit.service";
 import type { BlogPost } from "@/app/data/blogs";
 
 export const runtime = "nodejs";
@@ -64,9 +65,21 @@ export async function POST(request: NextRequest) {
     posts.unshift(post);
     await writeBlogStore(posts);
     refreshed(post);
+
+    const token = request.cookies.get(SESSION_COOKIE)?.value;
+    const user = await verifyAdminSession(token);
+    await logAuditEvent({
+      userId: user?.id,
+      action: "BLOG_CREATED",
+      entityType: "BlogPost",
+      entityId: post.id,
+      metadata: { title: post.title, slug: post.slug, status: post.status },
+      ipAddress: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1",
+    });
+
     return NextResponse.json({ success: true, post, posts, route: `/blogs/${post.slug}` }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("Unable to create blog", error);
+    console.error("Unable to create blog in PostgreSQL", error);
     return NextResponse.json({ error: "The blog could not be created." }, { status: 500 });
   }
 }
@@ -87,9 +100,21 @@ export async function PUT(request: NextRequest) {
     await writeBlogStore(posts);
     refreshed(previous);
     refreshed(post);
+
+    const token = request.cookies.get(SESSION_COOKIE)?.value;
+    const user = await verifyAdminSession(token);
+    await logAuditEvent({
+      userId: user?.id,
+      action: post.status === "published" && previous.status !== "published" ? "BLOG_PUBLISHED" : "BLOG_UPDATED",
+      entityType: "BlogPost",
+      entityId: post.id,
+      metadata: { title: post.title, slug: post.slug, status: post.status },
+      ipAddress: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1",
+    });
+
     return NextResponse.json({ success: true, post, posts, route: `/blogs/${post.slug}` }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("Unable to update blog", error);
+    console.error("Unable to update blog in PostgreSQL", error);
     return NextResponse.json({ error: "The blog could not be updated." }, { status: 500 });
   }
 }
@@ -104,9 +129,21 @@ export async function DELETE(request: NextRequest) {
     const next = posts.filter((candidate) => candidate.id !== post.id);
     await writeBlogStore(next);
     refreshed(post);
+
+    const token = request.cookies.get(SESSION_COOKIE)?.value;
+    const user = await verifyAdminSession(token);
+    await logAuditEvent({
+      userId: user?.id,
+      action: "BLOG_DELETED",
+      entityType: "BlogPost",
+      entityId: post.id,
+      metadata: { title: post.title, slug: post.slug },
+      ipAddress: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1",
+    });
+
     return NextResponse.json({ success: true, posts: next });
   } catch (error) {
-    console.error("Unable to delete blog", error);
+    console.error("Unable to delete blog in PostgreSQL", error);
     return NextResponse.json({ error: "The blog could not be deleted." }, { status: 500 });
   }
 }

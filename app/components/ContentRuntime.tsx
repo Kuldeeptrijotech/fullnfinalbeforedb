@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ContentEntry, SiteContent } from "@/app/lib/content-store";
+import { getAnimationConfig } from "@/app/lib/animation-config";
 
 const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
 
@@ -244,12 +245,20 @@ function applyEntry(entry: ContentEntry) {
       return;
     }
     if (entry.kind === "backgroundImage") {
+      if (!entry.value) { element.style.removeProperty("background-image"); return; }
       const current = element.style.backgroundImage.replace(/^url\(["']?|["']?\)$/g, "");
       if (current === entry.value) return;
       element.style.backgroundImage = `url("${entry.value}")`;
       return;
     }
     if (entry.attribute) {
+      if (!entry.value) {
+        if (entry.attribute === "data-media-src" || entry.attribute === "data-admin-animation") element.setAttribute(entry.attribute, "");
+        else element.removeAttribute(entry.attribute);
+        if (entry.attribute === "data-media-src") element.removeAttribute("src");
+        if (element instanceof HTMLVideoElement) element.load();
+        return;
+      }
       const current = element.getAttribute(entry.attribute) || "";
       if (current === entry.value) return;
       element.setAttribute(entry.attribute, entry.value);
@@ -265,6 +274,18 @@ function applyEntry(entry: ContentEntry) {
 function editableTarget(origin: Element): HTMLElement {
   return (origin.closest("h1,h2,h3,h4,h5,h6,p,a,button,img,video,li,span,label,article,section,div[class*='card']") ||
     origin) as HTMLElement;
+}
+
+function cardSelectionTarget(origin: Element): HTMLElement {
+  const fallback = editableTarget(origin);
+  const card = origin.closest<HTMLElement>("article, [class*='card']");
+  if (!card) return fallback;
+
+  const isDirectText = fallback.matches("h1,h2,h3,h4,h5,h6,p,span,label,blockquote") ||
+    ((fallback.tagName === "A" || fallback.tagName === "BUTTON") && !fallback.querySelector("video, img"));
+  if (isDirectText) return fallback;
+
+  return card.querySelector<HTMLElement>("h1,h2,h3,h4,h5,h6,p,[data-admin-card-title]") || fallback;
 }
 
 export default function ContentRuntime({ content }: { content: SiteContent }) {
@@ -382,16 +403,24 @@ export default function ContentRuntime({ content }: { content: SiteContent }) {
       if (!(origin instanceof Element)) return;
       event.preventDefault();
       event.stopPropagation();
-      const element = editableTarget(origin);
+      const element = cardSelectionTarget(origin);
 
       // Compute selector BEFORE adding transient class
       const selector = cssPath(element);
 
       const isMedia = element.tagName === "IMG" || element.tagName === "VIDEO";
+      const sectionContainer = element.closest("header,footer,section,main") as HTMLElement | null;
       const heroSection = element.closest("section") as HTMLElement | null;
+      const sectionIsHero = Boolean(heroSection && (
+        heroSection.hasAttribute("data-admin-hero") ||
+        heroSection.hasAttribute("data-admin-animation") ||
+        /hero/i.test(heroSection.id + " " + heroSection.className + " " + (heroSection.getAttribute("aria-label") || ""))
+      ));
+      const animationConfig = getAnimationConfig(sectionContainer, element);
+      const hasAnimation = animationConfig.exists;
       const backgroundElement =
-        heroSection?.querySelector<HTMLElement>("[style*='background-image']") || null;
-      const heroImageElement = heroSection
+        sectionContainer?.querySelector<HTMLElement>("[style*='background-image']") || null;
+      const heroImageElement = sectionIsHero && heroSection
         ? Array.from(heroSection.querySelectorAll<HTMLImageElement>("img")).find((image) => {
             const style = window.getComputedStyle(image);
             return style.position === "absolute" || image.className.includes("object-cover");
@@ -412,12 +441,12 @@ export default function ContentRuntime({ content }: { content: SiteContent }) {
       element.setAttribute("data-admin-selected-type", selectedType);
       selectedElement = element;
 
-      const section = element.closest("header,footer,section,main") as HTMLElement | null;
+      const section = sectionContainer;
       const global = Boolean(element.closest("header,footer"));
       const linkElement = element.closest("a") || (element.tagName === "BUTTON" ? element : null);
 
       const computed = window.getComputedStyle(element);
-      const sectionComputed = heroSection ? window.getComputedStyle(heroSection) : null;
+      const sectionComputed = sectionContainer ? window.getComputedStyle(sectionContainer) : null;
 
       window.parent.postMessage(
         {
@@ -460,8 +489,22 @@ export default function ContentRuntime({ content }: { content: SiteContent }) {
             backgroundSelector: backgroundElement ? cssPath(backgroundElement) : "",
             heroImage: heroImageElement?.getAttribute("src") || "",
             heroImageSelector: heroImageElement ? cssPath(heroImageElement) : "",
-            animation: heroSection?.getAttribute("data-admin-animation") || "default",
-            animationSelector: heroSection ? cssPath(heroSection) : "",
+            animation: animationConfig.source,
+            animationSelector: animationConfig.element ? cssPath(animationConfig.element) : "",
+            animationType: animationConfig.type,
+            animationAttribute: animationConfig.attribute,
+            capabilities: {
+              text: !isMedia && /^(H[1-6]|P|SPAN|LABEL|LI|A|BUTTON|BLOCKQUOTE)$/.test(element.tagName) && element.innerHTML !== "",
+              link: Boolean(linkElement),
+              image: element.tagName === "IMG" || Boolean(heroImageElement),
+              video: element.tagName === "VIDEO",
+              backgroundImage: Boolean(backgroundElement),
+              animation: hasAnimation,
+              elementStyle: Boolean(element.getAttribute("style")?.trim()),
+              sectionSettings: element.tagName === "SECTION" && Boolean(element.getAttribute("style")?.trim()),
+              addContent: false,
+              hero: sectionIsHero,
+            },
 
             // Image dimension & styling properties
             imageWidth: element.style.width || (isMedia ? computed.width : ""),
@@ -489,23 +532,23 @@ export default function ContentRuntime({ content }: { content: SiteContent }) {
             elementBorderRadius: element.style.borderRadius || "",
 
             // Section dimension & styling properties
-            sectionSelector: heroSection ? cssPath(heroSection) : "",
-            sectionWidth: heroSection?.style.width || "100%",
-            sectionMaxWidth: heroSection?.style.maxWidth || "",
-            sectionMinHeight: heroSection?.style.minHeight || (sectionComputed ? sectionComputed.minHeight : "auto"),
-            sectionHeight: heroSection?.style.height || "",
-            sectionPaddingTop: heroSection?.style.paddingTop || (sectionComputed ? sectionComputed.paddingTop : ""),
-            sectionPaddingBottom: heroSection?.style.paddingBottom || (sectionComputed ? sectionComputed.paddingBottom : ""),
-            sectionPaddingLeft: heroSection?.style.paddingLeft || (sectionComputed ? sectionComputed.paddingLeft : ""),
-            sectionPaddingRight: heroSection?.style.paddingRight || (sectionComputed ? sectionComputed.paddingRight : ""),
-            sectionMarginTop: heroSection?.style.marginTop || "",
-            sectionMarginBottom: heroSection?.style.marginBottom || "",
-            sectionBackgroundColor: heroSection?.style.backgroundColor || (sectionComputed ? sectionComputed.backgroundColor : ""),
-            sectionBackground: heroSection?.style.background || "",
-            sectionBorderRadius: heroSection?.style.borderRadius || (sectionComputed ? sectionComputed.borderRadius : ""),
-            sectionLayout: heroSection?.dataset.adminLayout || "original",
-            sectionColumns: heroSection?.style.getPropertyValue("--admin-columns") || "3",
-            sectionHidden: heroSection?.hasAttribute("hidden") || false,
+            sectionSelector: sectionContainer ? cssPath(sectionContainer) : "",
+            sectionWidth: sectionContainer?.style.width || "100%",
+            sectionMaxWidth: sectionContainer?.style.maxWidth || "",
+            sectionMinHeight: sectionContainer?.style.minHeight || (sectionComputed ? sectionComputed.minHeight : "auto"),
+            sectionHeight: sectionContainer?.style.height || "",
+            sectionPaddingTop: sectionContainer?.style.paddingTop || (sectionComputed ? sectionComputed.paddingTop : ""),
+            sectionPaddingBottom: sectionContainer?.style.paddingBottom || (sectionComputed ? sectionComputed.paddingBottom : ""),
+            sectionPaddingLeft: sectionContainer?.style.paddingLeft || (sectionComputed ? sectionComputed.paddingLeft : ""),
+            sectionPaddingRight: sectionContainer?.style.paddingRight || (sectionComputed ? sectionComputed.paddingRight : ""),
+            sectionMarginTop: sectionContainer?.style.marginTop || "",
+            sectionMarginBottom: sectionContainer?.style.marginBottom || "",
+            sectionBackgroundColor: sectionContainer?.style.backgroundColor || (sectionComputed ? sectionComputed.backgroundColor : ""),
+            sectionBackground: sectionContainer?.style.background || "",
+            sectionBorderRadius: sectionContainer?.style.borderRadius || (sectionComputed ? sectionComputed.borderRadius : ""),
+            sectionLayout: sectionContainer?.dataset.adminLayout || "original",
+            sectionColumns: sectionContainer?.style.getPropertyValue("--admin-columns") || "3",
+            sectionHidden: sectionContainer?.hasAttribute("hidden") || false,
           },
         },
         window.location.origin
