@@ -72,16 +72,17 @@ export async function POST(request: NextRequest) {
     const token = request.cookies.get(SESSION_COOKIE)?.value;
     const user = await verifyAdminSession(token);
 
-    // Persist MediaAsset record in PostgreSQL
+    // Persist MediaAsset record with binary data in PostgreSQL
     const mediaAsset = await prisma.mediaAsset.create({
       data: {
         fileName: filename,
         originalName: file.name,
         mimeType: file.type,
         fileSize: file.size,
-        storageType: "LOCAL_FILE",
-        storageKey: publicUrl,
+        storageType: "DATABASE_BLOB",
+        storageKey: publicUrl.replace(/^\//, ""),
         publicUrl,
+        data: buffer,
         checksum,
         createdBy: user?.id || null,
       },

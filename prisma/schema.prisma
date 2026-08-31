@@ -186,16 +186,16 @@ model MediaAsset {
   id           String    @id @default(uuid())
   fileName     String
   originalName String
-  mimeType     String
+  mimeType     String    @default("image/png")
   fileSize     Int
   width        Int?
   height       Int?
   altText      String?
   caption      String?
-  storageType  String    @default("LOCAL_FILE")
-  storageKey   String
-  publicUrl    String
-  data         Bytes?
+  storageType  String    @default("DATABASE_BLOB")
+  storageKey   String    @unique
+  publicUrl    String    @unique
+  data         Bytes     // PostgreSQL BYTEA binary column
   checksum     String?
   createdBy    String?
   deletedAt    DateTime?
@@ -743,3 +743,4 @@ model PrivacyPolicyPage {
 
   @@map("privacy_policy_pages")
 }
+
