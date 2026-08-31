@@ -1179,8 +1179,8 @@ async function main() {
   await prisma.contactPageConfig.upsert({
     where: { id: "default" },
     update: {
-      heroTitle: "Let's talk about your next milestone",
-      heroSubtitle: "Whether you need SAP implementation, managed support, cloud development, or data integration, our team is ready to help.",
+      heroTitle: "Let's start a meaningful conversation",
+      heroSubtitle: "Whether exploring a new SAP implementation, solving integration bottlenecks, or upgrading your analytics, our team is ready to help.",
       heroImage: "/assets/heroes/contact-generated-v2.png",
       salesEmail: "sales@trijotech.com",
       careersEmail: "hr@trijotech.com",
@@ -1203,8 +1203,8 @@ async function main() {
     },
     create: {
       id: "default",
-      heroTitle: "Let's talk about your next milestone",
-      heroSubtitle: "Whether you need SAP implementation, managed support, cloud development, or data integration, our team is ready to help.",
+      heroTitle: "Let's start a meaningful conversation",
+      heroSubtitle: "Whether exploring a new SAP implementation, solving integration bottlenecks, or upgrading your analytics, our team is ready to help.",
       heroImage: "/assets/heroes/contact-generated-v2.png",
       salesEmail: "sales@trijotech.com",
       careersEmail: "hr@trijotech.com",

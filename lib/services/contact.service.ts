@@ -67,10 +67,10 @@ export async function getContactPageData(): Promise<ContactPageData> {
     ];
 
     return {
-      heroTitle: config?.heroTitle || "Let's talk about your next milestone",
+      heroTitle: config?.heroTitle || "Let's start a meaningful conversation",
       heroSubtitle:
         config?.heroSubtitle ||
-        "Whether you need SAP implementation, managed support, cloud development, or data integration, our team is ready to help.",
+        "Whether exploring a new SAP implementation, solving integration bottlenecks, or upgrading your analytics, our team is ready to help.",
       heroImage: config?.heroImage || "/assets/heroes/contact-generated-v2.png",
       salesEmail: config?.salesEmail || "sales@trijotech.com",
       careersEmail: config?.careersEmail || "hr@trijotech.com",
