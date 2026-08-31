@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 export type AdminTab = "content" | "blogs" | "chatbot" | "createblog" | "submissions" | "users";
 
@@ -25,15 +26,20 @@ const subtitles: Record<AdminTab, string> = {
 export default function AdminNavbar({
   activeTab,
   subtitle,
-  extraActions,
 }: {
   activeTab: AdminTab;
   subtitle?: string;
-  extraActions?: React.ReactNode;
 }) {
-  async function logout() {
-    await fetch("/api/admin/logout", { method: "POST" });
-    window.location.assign("/admin/login");
+  const [signingOut, setSigningOut] = useState(false);
+
+  async function signOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } finally {
+      window.location.replace("/admin/login");
+    }
   }
 
   return (
@@ -60,12 +66,14 @@ export default function AdminNavbar({
         ))}
       </nav>
 
-      <div className="flex items-center gap-2.5">
-        {extraActions}
-        <button type="button" className="inline-flex items-center justify-center h-9 px-4 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors" onClick={logout}>
-          Sign out
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => void signOut()}
+        disabled={signingOut}
+        className="inline-flex h-9 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-xs font-bold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {signingOut ? "Signing out..." : "Sign out"}
+      </button>
     </header>
   );
 }

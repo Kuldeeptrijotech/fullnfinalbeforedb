@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   // Next.js expects hostnames here (without protocol or port).
   allowedDevOrigins: ["192.168.1.49"],
   images: {

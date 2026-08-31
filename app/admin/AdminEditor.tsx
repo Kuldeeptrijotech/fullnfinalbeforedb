@@ -754,44 +754,7 @@ export default function AdminEditor({
   return (
     <main className="admin-shell">
       {/* Shared Admin Navigation Bar */}
-      <AdminNavbar
-        activeTab="content"
-        extraActions={
-          selection ? (
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <button
-                type="button"
-                className="admin-secondary-button"
-                onClick={preview}
-                disabled={saving}
-                style={{ height: "36px", padding: "0 14px", borderRadius: "8px", fontSize: "12px", fontWeight: 700 }}
-              >
-                Live Preview
-              </button>
-              <button
-                type="button"
-                className="admin-primary-button"
-                onClick={save}
-                disabled={saving}
-                style={{
-                  height: "36px",
-                  padding: "0 18px",
-                  borderRadius: "8px",
-                  background: "#ee9e1e",
-                  color: "#fff",
-                  border: "1px solid #ee9e1e",
-                  fontFamily: "inherit",
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                {saving ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
-          ) : undefined
-        }
-      />
+      <AdminNavbar activeTab="content" />
 
       {notice && (
         <div className={`admin-notice ${notice.type}`} role="status">
