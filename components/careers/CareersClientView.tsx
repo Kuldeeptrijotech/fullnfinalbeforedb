@@ -29,7 +29,7 @@ export default function CareersClientView({ data }: { data: CareerPageData }) {
   return (
     <main className="public-alternating-page overflow-hidden bg-[#121927] text-white">
       {/* ──── Hero ────────────────────────────────────────────────────────────── */}
-      <section className="relative isolate flex min-h-[calc(100svh-4.5rem)] flex-col overflow-hidden bg-[#050817] pt-24 sm:pt-28 lg:pt-24 pb-10 sm:pb-12">
+      <section className="relative isolate min-h-[calc(100svh-4.5rem)] overflow-hidden bg-[#050817] pt-24 sm:pt-28 lg:pt-24 pb-12">
         <div className="absolute inset-0 -z-10 tri-mesh" />
         <div className="absolute inset-0 -z-10 tri-grid-bg" />
         <Image
@@ -39,14 +39,14 @@ export default function CareersClientView({ data }: { data: CareerPageData }) {
           priority
           loading="eager"
           sizes="100vw"
-          className="absolute inset-0 -z-10 object-cover object-center opacity-95"
+          className="absolute inset-0 -z-20 object-cover object-center opacity-95"
         />
         <CareersAscentStream />
 
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(5,8,23,0.85)_0%,rgba(5,8,23,0.45)_50%,rgba(5,8,23,0.15)_100%)]" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-[#050817] to-transparent" />
 
-        <div className="relative mx-auto flex w-full max-w-7xl flex-1 items-center px-5 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-12">
+        <div className="mx-auto flex min-h-[calc(100svh-9.5rem)] w-full max-w-7xl items-center px-5 py-10 sm:px-8 sm:py-12 lg:px-12">
           <div className="max-w-3xl">
             <motion.h1
               initial={{ opacity: 0, y: 24 }}
@@ -61,7 +61,7 @@ export default function CareersClientView({ data }: { data: CareerPageData }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-              className="mt-5 max-w-2xl text-base font-normal leading-[1.7] text-white/80 sm:text-lg"
+              className="mt-6 max-w-2xl text-base font-normal leading-[1.7] text-white/80 sm:text-lg"
             >
               {heroSubtitle}
             </motion.p>
