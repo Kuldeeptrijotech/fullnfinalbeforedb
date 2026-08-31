@@ -134,7 +134,6 @@ export async function getCareerSubmissions({
         notes: true,
         createdAt: true,
         updatedAt: true,
-        // Exclude resumeData binary from list queries for high performance
       },
       orderBy: { createdAt: "desc" },
       take: limit,

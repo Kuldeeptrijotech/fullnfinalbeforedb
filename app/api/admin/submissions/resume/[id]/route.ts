@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest } from "@/app/lib/admin-auth";
-import { getCareerResumeBuffer } from "@/app/lib/services/form.service";
+import { getCareerResumeBuffer } from "@/lib/services/form.service";
 
 export const runtime = "nodejs";
 

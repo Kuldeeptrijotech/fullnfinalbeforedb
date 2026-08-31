@@ -1,4 +1,4 @@
-import { getSiteContentFromDb, saveSiteContentEntriesToDb } from "./services/content.service";
+import { getSiteContentFromDb, saveSiteContentEntriesToDb } from "@/lib/services/content.service";
 
 export type ContentKind =
   | "html"

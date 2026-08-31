@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest, verifyAdminSession, SESSION_COOKIE } from "@/app/lib/admin-auth";
 import { defaultBlogBlockStyle, defaultFeaturedImageStyle, readBlogPosts, uniqueSlug, validateBlogPost, writeBlogStore } from "@/app/lib/blog-store";
-import { logAuditEvent } from "@/app/lib/services/audit.service";
+import { logAuditEvent } from "@/lib/services/audit.service";
 import type { BlogPost } from "@/lib/types/blog.types";
 
 export const runtime = "nodejs";

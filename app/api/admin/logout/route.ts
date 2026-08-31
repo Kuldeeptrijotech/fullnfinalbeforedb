@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE, sessionCookieOptions } from "@/app/lib/admin-auth";
-import { invalidateSession, verifyDbSession } from "@/app/lib/services/user.service";
-import { logAuditEvent } from "@/app/lib/services/audit.service";
+import { invalidateSession, verifyDbSession } from "@/lib/services/user.service";
+import { logAuditEvent } from "@/lib/services/audit.service";
 
 export const runtime = "nodejs";
 

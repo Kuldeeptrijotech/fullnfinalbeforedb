@@ -1,5 +1,5 @@
 import type { Blog, BlogPost } from "@/lib/types/blog.types";
-import { getAllBlogPostsFromDb, saveBlogPostToDb } from "./services/blog.service";
+import { getAllBlogPostsFromDb, saveBlogPostToDb } from "@/lib/services/blog.service";
 
 export type { Blog, BlogPost };
 

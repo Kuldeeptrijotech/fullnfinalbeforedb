@@ -5,8 +5,8 @@ import {
   getCareerSubmissions,
   updateContactSubmissionStatus,
   updateCareerSubmissionStatus,
-} from "@/app/lib/services/form.service";
-import { logAuditEvent } from "@/app/lib/services/audit.service";
+} from "@/lib/services/form.service";
+import { logAuditEvent } from "@/lib/services/audit.service";
 import type { FormStatus } from "@prisma/client";
 
 export const runtime = "nodejs";

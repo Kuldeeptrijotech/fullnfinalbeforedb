@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { verifyDbSession, type AuthenticatedUser } from "./services/user.service";
+import { verifyDbSession, type AuthenticatedUser } from "@/lib/services/user.service";
 
 export const SESSION_COOKIE = "trijotech_admin_session";
 const SESSION_SECONDS = 60 * 60 * 8;

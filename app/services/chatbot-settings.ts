@@ -1,6 +1,6 @@
 import "server-only";
 import type { ChatbotSettings } from "@/app/types/chatbot";
-import { getChatbotSettingsFromDb, saveChatbotSettingsToDb } from "@/app/lib/services/chatbot.service";
+import { getChatbotSettingsFromDb, saveChatbotSettingsToDb } from "@/lib/services/chatbot.service";
 
 export const defaultChatbotSettings: ChatbotSettings = {
   enabled: true,

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import ManagedBlogPage from "../../components/ManagedBlogPage";
-import { getBlogPostBySlugFromDb } from "@/app/lib/services/blog.service";
+import { getBlogPostBySlugFromDb } from "@/lib/services/blog.service";
 import { SESSION_COOKIE, verifySessionToken } from "@/app/lib/admin-auth";
 
 export const dynamic = "force-dynamic";

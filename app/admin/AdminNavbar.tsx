@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-export type AdminTab = "content" | "blogs" | "chatbot" | "createblog" | "submissions";
+export type AdminTab = "content" | "blogs" | "chatbot" | "createblog" | "submissions" | "users";
 
 const tabs: Array<{ id: AdminTab; label: string; href: string }> = [
   { id: "content", label: "Page Content", href: "/admin" },
@@ -10,6 +10,7 @@ const tabs: Array<{ id: AdminTab; label: string; href: string }> = [
   { id: "submissions", label: "Form Submissions", href: "/admin/submissions" },
   { id: "chatbot", label: "Chatbot Studio", href: "/admin/chatbot" },
   { id: "createblog", label: "Create Blog", href: "/admin/createblog" },
+  { id: "users", label: "Admin Users", href: "/admin/users" },
 ];
 
 const subtitles: Record<AdminTab, string> = {
@@ -18,6 +19,7 @@ const subtitles: Record<AdminTab, string> = {
   submissions: "Contact & Career Submissions Manager",
   chatbot: "AI Chatbot & Intelligence Studio",
   createblog: "Create Blog Studio",
+  users: "Administrator Access Manager",
 };
 
 export default function AdminNavbar({

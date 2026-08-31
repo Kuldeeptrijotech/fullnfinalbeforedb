@@ -4,7 +4,7 @@ import {
   getAllKnowledgeEntriesFromDb,
   saveKnowledgeEntryToDb,
   deleteKnowledgeEntryFromDb,
-} from "@/app/lib/services/chatbot.service";
+} from "@/lib/services/chatbot.service";
 
 const stopWords = new Set(["a", "an", "and", "are", "can", "could", "do", "does", "for", "how", "i", "in", "is", "it", "me", "my", "of", "on", "please", "tell", "that", "the", "their", "to", "us", "we", "what", "when", "where", "which", "who", "why", "with", "would", "you", "your"]);
 const words = (value: string) => value.toLowerCase().normalize("NFKD").replace(/[^a-z0-9\s-]/g, " ").split(/\s+/).filter((word) => word.length > 1 && !stopWords.has(word)).map((word) => word.length > 4 && word.endsWith("ies") ? `${word.slice(0, -3)}y` : word.length > 3 && word.endsWith("s") && !word.endsWith("ss") ? word.slice(0, -1) : word);

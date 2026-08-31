@@ -5,8 +5,8 @@ import {
   getSiteContentFromDb,
   saveSiteContentEntriesToDb,
   deleteSiteContentEntriesFromDb,
-} from "@/app/lib/services/content.service";
-import { logAuditEvent } from "@/app/lib/services/audit.service";
+} from "@/lib/services/content.service";
+import { logAuditEvent } from "@/lib/services/audit.service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

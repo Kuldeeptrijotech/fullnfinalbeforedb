@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { clientIp, escapeHtml, fieldRows, isRateLimited, mailer, sender, text, validEmail, validPhone, verifyCaptcha } from "@/app/lib/form-security";
-import { createCareerSubmission } from "@/app/lib/services/form.service";
-import { logAuditEvent } from "@/app/lib/services/audit.service";
+import { createCareerSubmission } from "@/lib/services/form.service";
+import { logAuditEvent } from "@/lib/services/audit.service";
 
 export const runtime = "nodejs";
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
